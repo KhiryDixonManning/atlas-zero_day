@@ -13,12 +13,15 @@ const DOOR = { left: (MB_FRONT.cx - MB_FRONT.r) / MB_VIEW.w * 100, top: (MB_FRON
 
 // the plants around the post: back row first, then the mailbox, then the front row
 const PLANTS = [
-  { cls: 'plant--back', seed: 21, style: 'left:2%;width:40%;bottom:8%;--sway:8.5s;--d:-3s', dim: 0.45, heads: [{ open: 1, yaw: 0.5, pitch: -0.55, size: 0.85 }, { t: 0.8, open: 0.1, dx: 30, dy: -30, size: 0.7 }] },
-  { cls: 'plant--back', seed: 22, style: 'left:48%;width:36%;bottom:10%;--sway:9.5s;--d:-6s', dim: 0.45, heads: [{ open: 0.9, yaw: -0.8, pitch: -0.35, size: 0.8 }] },
-  { cls: 'plant--front', seed: 23, style: 'left:-2%;width:48%;bottom:-7%;--sway:7s;--d:-1s', dim: 0, heads: [{ open: 1, yaw: 0.35, pitch: -0.5, size: 1 }, { t: 0.76, open: 0.2, dx: -34, dy: -36, size: 0.8 }] },
-  { cls: 'plant--front', seed: 24, style: 'left:36%;width:46%;bottom:-9%;--sway:7.8s;--d:-4.5s', dim: 0, heads: [{ open: 1, yaw: -1.1, pitch: -0.3, size: 1 }] },
-  { cls: 'plant--front', seed: 25, style: 'left:58%;width:42%;bottom:-6%;--sway:6.6s;--d:-2.2s', dim: 0.06, heads: [{ open: 1, yaw: 1.6, pitch: -0.45, size: 1 }, { t: 0.8, open: 0.5, dx: 30, dy: -34, size: 0.75 }], leafCount: 4 },
-  { cls: 'plant--front', seed: 26, style: 'left:18%;width:30%;bottom:-11%;--sway:6s;--d:-5.5s', dim: 0.05, heads: [{ open: 0.3, yaw: 0.2, pitch: -1.1, size: 0.8 }], leafCount: 4 },
+  // behind the box: tall, dimmer, heads beside the cap
+  { cls: 'plant--back', seed: 21, style: 'left:-6%;width:38%;bottom:17%;--sway:8.5s;--d:-3s', dim: 0.45, tall: 0.86, heads: [{ open: 1, yaw: 0.6, pitch: -0.5, size: 0.8 }, { t: 0.84, open: 0.12, dx: 26, dy: -26, size: 0.7 }] },
+  { cls: 'plant--back', seed: 22, style: 'left:72%;width:36%;bottom:20%;--sway:9.5s;--d:-6s', dim: 0.42, tall: 0.86, heads: [{ open: 0.9, yaw: -0.9, pitch: -0.35, size: 0.8 }] },
+  // beside the post, between the box and the foreground
+  { cls: 'plant--mid', seed: 25, style: 'left:55%;width:34%;bottom:12%;--sway:6.6s;--d:-2.2s', dim: 0.12, heads: [{ open: 0.55, yaw: 1.3, pitch: -0.7, size: 0.85 }], leafCount: 4 },
+  // the foreground: heads below the open door, clear of the screen edges
+  { cls: 'plant--front', seed: 23, style: 'left:-3%;width:46%;bottom:-13%;--sway:7s;--d:-1s', dim: 0, heads: [{ open: 1, yaw: 0.45, pitch: -0.5, size: 0.95 }, { t: 0.78, open: 0.2, dx: 30, dy: -34, size: 0.78 }] },
+  { cls: 'plant--front', seed: 24, style: 'left:58%;width:44%;bottom:-12%;--sway:7.8s;--d:-4.5s', dim: 0, heads: [{ open: 1, yaw: -1.2, pitch: -0.3, size: 0.95 }] },
+  { cls: 'plant--front', seed: 26, style: 'left:33%;width:26%;bottom:-10%;--sway:6s;--d:-5.5s', dim: 0.05, heads: [{ open: 0.3, yaw: 0.2, pitch: -1.1, size: 0.8 }], leafCount: 3 },
 ];
 
 function envelopeFront() {
@@ -26,6 +29,9 @@ function envelopeFront() {
     <div class="env__to"><span class="env__name">Lily</span><span class="env__sub">by hand &middot; with care</span></div>
     <div class="env__line" style="top:70%;width:52%"></div><div class="env__line" style="top:79%;width:40%"></div>`;
 }
+const FLAP_FRONT = `<svg viewBox="0 0 300 112" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="ffG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ecdfc4"/><stop offset=".7" stop-color="#dfd0b1"/><stop offset="1" stop-color="#d2c3a3"/></linearGradient></defs><path d="M0 0 L300 0 L150 112 Z" fill="url(#ffG)"/><path d="M0 0 L300 0" stroke="rgba(255,250,236,.7)" stroke-width="2"/><path d="M0 0 L150 112 L300 0" fill="none" stroke="rgba(70,52,26,.18)" stroke-width="1"/></svg>`;
+const FLAP_BACK = `<svg viewBox="0 0 300 112" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="fbG" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#efe6d0"/><stop offset="1" stop-color="#dccfb2"/></linearGradient></defs><path d="M0 0 L300 0 L150 112 Z" fill="url(#fbG)"/><path d="M0 1 L300 1" stroke="rgba(80,60,30,.25)" stroke-width="1.5"/></svg>`;
+const FLAP_SHADOW = `<svg viewBox="0 0 300 120" preserveAspectRatio="none" aria-hidden="true"><defs><linearGradient id="fsG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="rgba(0,0,0,.02)"/><stop offset="1" stop-color="rgba(0,0,0,.32)"/></linearGradient><filter id="fsB"><feGaussianBlur stdDeviation="3"/></filter></defs><path d="M0 0 L300 0 L150 120 Z" fill="url(#fsG)" filter="url(#fsB)"/></svg>`;
 const POCKET = `<svg class="env__pocket-svg" viewBox="0 0 300 200" preserveAspectRatio="none" aria-hidden="true">
   <defs>
     <linearGradient id="pkL" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#efe5cc"/><stop offset="1" stop-color="#dccdab"/></linearGradient>
@@ -50,7 +56,7 @@ export function createGarden(ctx) {
     <div class="garden__ground"></div>
     ${grassStrip(3, 80)}
     <div class="garden__scene">
-      ${PLANTS.map((p, i) => `<div class="plant ${p.cls}" style="${p.style}" role="img" aria-label="a white lily" tabindex="0" data-i="${i}">${lilyPlant({ seed: p.seed, heads: p.heads, dim: p.dim, leafCount: p.leafCount || 5 })}</div>`).join('')}
+      ${PLANTS.map((p, i) => `<div class="plant ${p.cls}" style="${p.style}" role="img" aria-label="a white lily" tabindex="0" data-i="${i}">${lilyPlant({ seed: p.seed, heads: p.heads, dim: p.dim, leafCount: p.leafCount || 5, tall: p.tall })}</div>`).join('')}
       <div class="mb" role="button" tabindex="0" aria-label="A red mailbox on a cedar post. Tap to open it.">
         ${mailboxSVG()}
         <div class="mb__front" style="left:${DOOR.left}%;top:${DOOR.top}%;width:${DOOR.width}%;height:${DOOR.height}%">
@@ -69,15 +75,15 @@ export function createGarden(ctx) {
       <div class="env" role="button" tabindex="-1" aria-label="An envelope addressed to Lily">
         <div class="env__shadow"></div>
         <div class="env__body">
-          <div class="env__face env__face--front">${envelopeFront()}</div>
+          <div class="env__face env__face--front">${envelopeFront()}<div class="env__dimmer"></div></div>
           <div class="env__face env__face--back">
-            <div class="env__backpanel"></div>
+            <div class="env__backpanel"></div><div class="env__dimmer"></div>
             <div class="env__letter"><div class="env__letter-paper"></div></div>
             <div class="env__pocket">${POCKET}</div>
-            <div class="env__flap-shadow"></div>
+            <div class="env__flap-shadow">${FLAP_SHADOW}</div>
             <div class="env__flap">
-              <div class="flap-face flap-face--front"><div class="env__seal">${seal()}</div></div>
-              <div class="flap-face flap-face--back"></div>
+              <div class="flap-face flap-face--front">${FLAP_FRONT}<div class="env__seal">${seal()}</div></div>
+              <div class="flap-face flap-face--back">${FLAP_BACK}</div>
             </div>
           </div>
         </div>
@@ -115,6 +121,7 @@ export function createGarden(ctx) {
     const pad = H < 520 ? 100 : 170;
     const ew = min(W * 0.86, 420, (H - pad) * 1.5); env.style.width = ew + 'px'; env.style.setProperty('--ew', ew + 'px');
     const lw = min(W * 0.86, 400, (H - pad) / 1.38); letter.style.setProperty('--lw', lw + 'px');
+    mbEnv.style.setProperty('--ew', mbEnv.offsetWidth + 'px');
     if (!stars.length) seedSky();
   }
 
@@ -175,7 +182,7 @@ export function createGarden(ctx) {
     const dur = RM ? 600 : 1500;
     run(dur, EASE.inOut, k => {
       const sc = s + (1 - s) * k, x = dx * (1 - k), y = dy * (1 - k) - 40 * sin(PI * k), rot = -8 * (1 - k);
-      env.style.transform = `translate(${x}px, ${y}px) scale(${sc}) rotate(${rot}deg) rotateX(${6 * k}deg)`;
+      env.style.transform = `translate(${x}px, ${y}px) scale(${sc}) rotate(${rot}deg) rotateY(${-8 * (1 - k)}deg) rotateX(${6 * k}deg)`;
       env.style.setProperty('--near', k.toFixed(3));
     }).then(() => { if (state !== 'taking') return; env.style.transform = ''; env.classList.add('is-held'); state = 'front'; setCue('turn it over'); env.tabIndex = 0; env.focus({ preventScroll: true }); });
   }
@@ -197,32 +204,37 @@ export function createGarden(ctx) {
       const r = sealEl.getBoundingClientRect(); spark(r.left + r.width / 2, r.top + r.height / 2, 10, { col: 'rgba(122,31,43,', spread: 120, up: 0.6, g: 220, r: 2 });
     }, T[0]);
     // the flap peels up from the seal, then falls open over the top edge
-    later(() => { ctx.audio.sfx('paper'); run(RM ? 500 : 1500, EASE.hinge, k => { envFlap.style.transform = `rotateX(${-172 * k}deg)`; env.style.setProperty('--flap', k.toFixed(3)); }).then(() => env.classList.add('is-opened')); }, T[1]);
+    later(() => { ctx.audio.sfx('paper'); run(RM ? 500 : 1500, EASE.hinge, k => { envFlap.style.transform = `translateZ(3px) rotateX(${-172 * k}deg)`; env.style.setProperty('--flap', k.toFixed(3)); }) }, T[1]);
     // the letter slides up out of the pocket
-    later(() => { ctx.audio.sfx('paper'); run(RM ? 500 : 1300, EASE.inOut, k => { envLetter.style.transform = `translateY(${-78 * k}%)`; }); }, T[2]);
+    later(() => { ctx.audio.sfx('paper'); run(RM ? 500 : 1300, EASE.inOut, k => { envLetter.style.transform = `translateZ(1px) translateY(${-62 * k}%)`; }); }, T[2]);
     later(() => liftLetter(), T[3]);
   }
   function liftLetter() {
-    // the letter leaves the envelope and comes forward, then unfolds
+    // the folded letter takes over from the sheet in the pocket at the same place and size, then comes forward
     const a = envLetter.getBoundingClientRect(), b = letter.getBoundingClientRect();
     const ph = pTop.getBoundingClientRect().height, s = a.width / b.width;
     const dx = (a.left + a.width / 2) - (b.left + b.width / 2), dy = (a.top + a.height / 2) - (b.top + ph * 1.5);
+    pTop.style.transform = 'translateZ(2px) rotateX(-180deg)'; pBot.style.transform = 'translateZ(-1px) rotateX(-180deg)';
+    pTop.querySelector('.front').style.visibility = 'hidden'; pBot.querySelector('.front').style.visibility = 'hidden';
+    letter.style.transform = `translate(${dx}px, ${dy}px) scale(${s})`;
     letter.classList.add('is-in', 'is-folding'); envLetter.style.opacity = '0';
-    pTop.style.transform = 'translateZ(2px) rotateX(-180deg)'; pBot.style.transform = 'translateZ(1px) rotateX(180deg)';
     env.classList.add('is-away');
     const dur = RM ? 500 : 1300;
     run(dur, EASE.inOut, k => {
       letter.style.transform = `translate(${dx * (1 - k)}px, ${dy * (1 - k)}px) scale(${s + (1 - s) * k})`;
-      env.style.transform = `translateY(${22 * k}%) scale(${1 - 0.08 * k})`; env.style.opacity = String(1 - k);
+      env.style.transform = `translateY(${18 * k}%) scale(${1 - 0.06 * k})`; env.style.setProperty('--sink', k.toFixed(3));
     }).then(() => { if (state !== 'breaking') return; letter.style.transform = ''; return unfold(); });
   }
   async function unfold() {
     const topFront = pTop.querySelector('.front'), botFront = pBot.querySelector('.front');
+    const topShade = pTop.querySelector('.shade'), botShade = pBot.querySelector('.shade');
     ctx.audio.sfx('unfold');
-    await run(RM ? 600 : 1500, EASE.inOut, k => { const a = -180 * (1 - k); pTop.style.transform = `translateZ(2px) rotateX(${a}deg)`; topFront.style.visibility = a > -90 ? 'visible' : 'hidden'; });
+    // the top panel lifts off the front of the sheet and lays flat above it
+    await run(RM ? 600 : 1500, EASE.inOut, k => { const a = -180 * (1 - k); pTop.style.transform = `translateZ(2px) rotateX(${a}deg)`; topFront.style.visibility = a > -90 ? 'visible' : 'hidden'; topShade.style.opacity = String(sin(PI * k) * 0.9); });
     if (state !== 'breaking') return;
     ctx.audio.sfx('paper');
-    await run(RM ? 600 : 1400, EASE.inOut, k => { const a = 180 * (1 - k); pBot.style.transform = `translateZ(1px) rotateX(${a}deg)`; botFront.style.visibility = a < 90 ? 'visible' : 'hidden'; });
+    // the bottom panel drops down from behind
+    await run(RM ? 600 : 1400, EASE.inOut, k => { const a = -180 * (1 - k); pBot.style.transform = `translateZ(-1px) rotateX(${a}deg)`; botFront.style.visibility = a > -90 ? 'visible' : 'hidden'; botShade.style.opacity = String(sin(PI * k) * 0.9); });
     if (state !== 'breaking') return;
     letter.classList.remove('is-folding'); letter.classList.add('is-open');
     state = 'letter'; setCue('turn the page'); letter.tabIndex = 0; letter.focus({ preventScroll: true }); ctx.markLetterRead();
@@ -230,10 +242,10 @@ export function createGarden(ctx) {
   function putBackEnvelope() {
     // "back" from the envelope or the letter: everything returns to the mailbox
     clearLater(); setCue('');
-    letter.classList.remove('is-in', 'is-folding', 'is-open'); letter.style.transform = '';
-    pTop.style.transform = ''; pBot.style.transform = ''; pTop.querySelector('.front').style.visibility = ''; pBot.querySelector('.front').style.visibility = '';
-    env.classList.remove('is-in', 'is-held', 'is-flipped', 'is-cracking', 'is-broken', 'is-opened', 'is-away');
-    env.style.transform = ''; env.style.opacity = ''; env.style.removeProperty('--near'); env.style.removeProperty('--flap');
+    letter.classList.remove('is-in', 'is-folding', 'is-open', 'is-leaving'); letter.style.transform = '';
+    pTop.style.transform = ''; pBot.style.transform = ''; pTop.querySelector('.front').style.visibility = ''; pBot.querySelector('.front').style.visibility = ''; pTop.querySelector('.shade').style.opacity = ''; pBot.querySelector('.shade').style.opacity = '';
+    env.classList.remove('is-in', 'is-held', 'is-flipped', 'is-cracking', 'is-broken', 'is-away');
+    env.style.transform = ''; env.style.opacity = ''; env.style.removeProperty('--near'); env.style.removeProperty('--flap'); env.style.removeProperty('--sink');
     envBody.style.transform = ''; envFlap.style.transform = ''; envLetter.style.transform = ''; envLetter.style.opacity = '';
     mbEnv.style.opacity = ''; root.classList.remove('is-dim');
     later(() => { state = 'open'; setCue('take the envelope'); }, 700);
@@ -283,7 +295,11 @@ export function createGarden(ctx) {
       later(() => { mb.classList.remove('is-closing'); state = 'closed'; words.classList.add('is-in'); }, 1200);
       later(() => { if (state === 'closed') { mb.classList.add('is-hinting'); setCue('tap the mailbox'); } }, 3200);
     },
-    async exit({ reveal }) { setCue(''); reveal(); await wait(200); },
+    async exit({ reveal }) {
+      setCue('');
+      if (state === 'letter') { letter.classList.add('is-leaving'); await wait(RM ? 200 : 380); }
+      reveal(); await wait(200);
+    },
     destroy() { stop(); clearLater(); window.removeEventListener('resize', onResize); document.removeEventListener('visibilitychange', onVis); },
   };
 }
