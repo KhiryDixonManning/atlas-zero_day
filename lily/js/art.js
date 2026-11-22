@@ -143,17 +143,17 @@ export const JOURNAL_ART = {
     </g>
     <path d="M14 108 Q 60 104 140 110" stroke="${INK}" stroke-width=".8" fill="none" opacity=".35" stroke-dasharray="3 3"/>
   </svg>`,
-  notes: () => `<svg viewBox="0 0 200 130" aria-hidden="true">
-    <g transform="rotate(-3 100 65)">
-      <rect x="10" y="10" width="180" height="110" rx="3" fill="#f5efe0" stroke="${INK}" stroke-width="1.2"/>
-      <path d="M10 36 H190" stroke="#c76d6d" stroke-width="1" opacity=".7"/>
-      ${[54, 72, 90, 108].map(y => `<path d="M24 ${y} H176" stroke="#9fb0c8" stroke-width=".8" opacity=".6"/>`).join('')}
-      <text x="22" y="29" font-family="'IBM Plex Mono',monospace" font-size="9" letter-spacing="2" fill="${INK}" opacity=".7">FIELD NOTES</text>
-      <text x="24" y="51" font-family="Caveat,cursive" font-size="15" fill="${INK}">tone, hints, the thing under the thing</text>
-      <text x="24" y="69" font-family="Caveat,cursive" font-size="15" fill="${INK}">why do people do what they do?</text>
-      <text x="24" y="87" font-family="Caveat,cursive" font-size="15" fill="${INK}">(took the class. still asking.)</text>
-      <path class="notes__hl" d="M22 104 H150" stroke="#e9d66b" stroke-width="12" stroke-linecap="round" opacity=".55" pathLength="1"/>
-      <text x="24" y="106" font-family="Caveat,cursive" font-size="15" font-weight="600" fill="${INK}">she reads people fine, actually.</text>
+  notes: () => `<svg viewBox="0 0 224 130" aria-hidden="true">
+    <g transform="rotate(-3 112 65)">
+      <rect x="8" y="10" width="208" height="110" rx="3" fill="#f5efe0" stroke="${INK}" stroke-width="1.2"/>
+      <path d="M8 36 H216" stroke="#c76d6d" stroke-width="1" opacity=".7"/>
+      ${[54, 72, 90, 108].map(y => `<path d="M22 ${y} H202" stroke="#9fb0c8" stroke-width=".8" opacity=".6"/>`).join('')}
+      <text x="20" y="29" font-family="'IBM Plex Mono',monospace" font-size="9" letter-spacing="2" fill="${INK}" opacity=".7">FIELD NOTES</text>
+      <text x="22" y="51" font-family="Caveat,cursive" font-size="14.5" fill="${INK}">tone, hints, the thing under the thing</text>
+      <text x="22" y="69" font-family="Caveat,cursive" font-size="14.5" fill="${INK}">why do people do what they do?</text>
+      <text x="22" y="87" font-family="Caveat,cursive" font-size="14.5" fill="${INK}">(took the class. still asking.)</text>
+      <path class="notes__hl" d="M20 104 H168" stroke="#e9d66b" stroke-width="12" stroke-linecap="round" opacity=".55" pathLength="1"/>
+      <text x="22" y="106" font-family="Caveat,cursive" font-size="14.5" font-weight="600" fill="${INK}">she reads people fine, actually.</text>
     </g>
   </svg>`,
   outfits: () => `<svg viewBox="0 0 160 170" aria-hidden="true">
