@@ -4,80 +4,9 @@ import { hash } from './util.js';
 const { sin, cos, PI } = Math;
 let uid = 0; const id = p => `${p}${++uid}`;
 
-// ---------- a lily sprig: stem, leaves, one open flower (and sometimes a bud) ----------
-export function lilySprig(seed = 1, { bud = true, scaleHead = 1, open = 1 } = {}) {
-  const r = (k) => hash(seed, k, 77);
-  const g = id('lp'), gb = id('lb'), gl = id('ll'), gs = id('ls');
-  const W = 160, H = 300, bx = 80, by = 300;
-  // stem: a gentle curve from the ground to the head
-  const lean = (r(1) - 0.5) * 50;
-  const hx = bx + lean, hy = 70;
-  const stem = `M${bx} ${by} C ${bx + lean * 0.2} ${by - 90}, ${hx - lean * 0.3} ${hy + 90}, ${hx} ${hy + 8}`;
-  // leaves along the stem
-  let leaves = '';
-  for (let i = 0; i < 4; i++) {
-    const t = 0.18 + i * 0.19, side = i % 2 ? 1 : -1;
-    // point on the cubic
-    const p = cubic(bx, by, bx + lean * 0.2, by - 90, hx - lean * 0.3, hy + 90, hx, hy + 8, t);
-    const L = 52 + r(10 + i) * 26, w = 9 + r(20 + i) * 4, a = side * (28 + r(30 + i) * 22) - 90;
-    leaves += `<path d="${leafPath(L, w)}" transform="translate(${p[0].toFixed(1)} ${p[1].toFixed(1)}) rotate(${a.toFixed(1)})" fill="url(#${gl})" stroke="rgba(10,20,12,.35)" stroke-width=".6"/>`;
-  }
-  // the head: six tepals, three behind, three in front, seen a little from the side
-  const tilt = -18 + (r(2) - 0.5) * 16;
-  const L = 48 * scaleHead, w = 15 * scaleHead;
-  let back = '', front = '';
-  const angles = [-90, -30, 30, 90, 150, 210];
-  angles.forEach((a, i) => {
-    const flare = 1 - (1 - open) * 0.7;
-    const ang = -90 + (a + 90) * flare;
-    const isFront = i >= 3;
-    const path = `<path d="${petalPath(L * (0.9 + r(40 + i) * 0.2), w * (0.9 + r(50 + i) * 0.2))}" transform="rotate(${ang})" fill="url(#${isFront ? g : gb})" stroke="rgba(120,120,110,.25)" stroke-width=".5"/>`;
-    if (isFront) front += path; else back += path;
-  });
-  // stamens leaning toward the viewer
-  let stamens = '';
-  for (let i = 0; i < 6; i++) {
-    const a = -40 + i * 18 + (r(60 + i) - 0.5) * 8, len = 26 + r(70 + i) * 8;
-    const x2 = cos(a * PI / 180) * len, y2 = sin(a * PI / 180) * len + 18;
-    stamens += `<line x1="0" y1="6" x2="${x2.toFixed(1)}" y2="${y2.toFixed(1)}" stroke="#e6dfb8" stroke-width="1.1"/>
-      <ellipse cx="${x2.toFixed(1)}" cy="${y2.toFixed(1)}" rx="4.2" ry="1.8" transform="rotate(${a.toFixed(1)} ${x2.toFixed(1)} ${y2.toFixed(1)})" fill="#b85a2a"/>`;
-  }
-  stamens += `<line x1="0" y1="6" x2="2" y2="40" stroke="#e9e3c0" stroke-width="1.3"/><circle cx="2" cy="40" r="2.6" fill="#cfe0a2"/>`;
-  // a bud on a side stalk
-  const budSvg = bud ? `<g transform="translate(${(hx + 26).toFixed(1)} ${(hy + 60).toFixed(1)}) rotate(28)">
-      <path d="M0 0 C -8 -8, -8 -40, 0 -52 C 8 -40, 8 -8, 0 0 Z" fill="url(#${gs})" stroke="rgba(10,20,12,.3)" stroke-width=".6"/>
-      <path d="M0 -4 L0 -46" stroke="rgba(255,255,255,.25)" stroke-width=".8"/></g>
-      <path d="M${hx.toFixed(1)} ${(hy + 40).toFixed(1)} Q ${(hx + 18).toFixed(1)} ${(hy + 46).toFixed(1)} ${(hx + 26).toFixed(1)} ${(hy + 60).toFixed(1)}" fill="none" stroke="#3f6a3c" stroke-width="2.2"/>` : '';
-  return `<svg class="sprig__svg" viewBox="0 0 ${W} ${H}" aria-hidden="true">
-    <defs>
-      <linearGradient id="${g}" x1="0" y1="0" x2="0" y2="-1" gradientUnits="objectBoundingBox" gradientTransform="translate(0 1)">
-        <stop offset="0" stop-color="#d8e39a"/><stop offset=".32" stop-color="#faf7ef"/><stop offset="1" stop-color="#e9e6dc"/></linearGradient>
-      <linearGradient id="${gb}" x1="0" y1="0" x2="0" y2="-1" gradientUnits="objectBoundingBox" gradientTransform="translate(0 1)">
-        <stop offset="0" stop-color="#b9c38a"/><stop offset=".35" stop-color="#d9d8d0"/><stop offset="1" stop-color="#c8c7c0"/></linearGradient>
-      <linearGradient id="${gl}" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2d4a33"/><stop offset=".5" stop-color="#56824f"/><stop offset="1" stop-color="#27402c"/></linearGradient>
-      <linearGradient id="${gs}" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#7fa36a"/><stop offset=".6" stop-color="#dfe6c2"/><stop offset="1" stop-color="#f4f1e6"/></linearGradient>
-    </defs>
-    <path d="${stem}" fill="none" stroke="#2c4a33" stroke-width="4.5" stroke-linecap="round"/>
-    <path d="${stem}" fill="none" stroke="#5c8a55" stroke-width="2" stroke-linecap="round" opacity=".8"/>
-    ${leaves}${budSvg}
-    <g transform="translate(${hx.toFixed(1)} ${hy.toFixed(1)}) rotate(${tilt.toFixed(1)})"><g class="sprig__head">
-      <g transform="scale(1 .8)">${back}</g>
-      <g transform="scale(1 .8)">${front}</g>
-      ${stamens}
-    </g></g>
-  </svg>`;
-}
-function cubic(x0, y0, x1, y1, x2, y2, x3, y3, t) {
-  const u = 1 - t, a = u * u * u, b = 3 * u * u * t, c = 3 * u * t * t, d = t * t * t;
-  return [a * x0 + b * x1 + c * x2 + d * x3, a * y0 + b * y1 + c * y2 + d * y3];
-}
 function petalPath(L, w) {
   return `M0 0 C ${w} ${-L * 0.25}, ${w * 1.05} ${-L * 0.7}, 0 ${-L} C ${-w * 1.05} ${-L * 0.7}, ${-w} ${-L * 0.25}, 0 0 Z`;
 }
-function leafPath(L, w) {
-  return `M0 0 C ${w} ${-L * 0.35}, ${w * 0.6} ${-L * 0.8}, 0 ${-L} C ${-w * 0.6} ${-L * 0.8}, ${-w} ${-L * 0.35}, 0 0 Z`;
-}
-
 // ---------- grass: a strip of dark tufts, sized to the bottom of the screen ----------
 export function grassStrip(seed = 3, n = 90) {
   let out = '';
@@ -104,82 +33,6 @@ export function hills() {
     <defs><linearGradient id="hillA" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#141e2c"/><stop offset="1" stop-color="#0b111a"/></linearGradient>
     <linearGradient id="hillB" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0f1a1c"/><stop offset="1" stop-color="#0a120f"/></linearGradient></defs>
     <path d="${d}" fill="url(#hillA)"/><path d="${d2}" fill="url(#hillB)"/></svg>`;
-}
-
-// ---------- the mailbox ----------
-// Oblique view: the front is a D shape (x 36..216, y 56..236); the body recedes by (72,-42).
-export const MAILBOX_FRONT = { left: 36 / 320, top: 56 / 480, width: 180 / 320, height: 180 / 480 };
-export function mailboxBody() {
-  let rivets = '';
-  for (let i = 0; i <= 10; i++) { const a = PI + i * PI / 10, x = 126 + 86 * cos(a), y = 146 + 86 * sin(a); rivets += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="1.8" fill="#e5c9a8" opacity=".7"/>`; }
-  let grain = '';
-  for (let i = 0; i < 7; i++) { const x = 108 + i * 6 + hash(i, 1, 9) * 3; grain += `<path d="M${x} 240 Q ${x + 3} 330 ${x - 2} 480" stroke="rgba(0,0,0,.28)" stroke-width="${(0.6 + hash(i, 2, 9)).toFixed(1)}" fill="none"/>`; }
-  return `<svg class="mb__svg" viewBox="0 0 320 480" aria-hidden="true">
-    <defs>
-      <linearGradient id="mbTop" x1="0" y1="0" x2="0.3" y2="1"><stop offset="0" stop-color="#c4765d"/><stop offset=".45" stop-color="#8f4231"/><stop offset="1" stop-color="#4e2018"/></linearGradient>
-      <linearGradient id="mbSide" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#5a251c"/><stop offset="1" stop-color="#23100c"/></linearGradient>
-      <radialGradient id="mbIn" cx=".45" cy=".6" r=".65"><stop offset="0" stop-color="#2b1b15"/><stop offset=".7" stop-color="#110907"/><stop offset="1" stop-color="#050302"/></radialGradient>
-      <linearGradient id="mbPost" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#2f2016"/><stop offset=".3" stop-color="#6a4a30"/><stop offset=".62" stop-color="#4b3421"/><stop offset="1" stop-color="#1f140c"/></linearGradient>
-      <linearGradient id="mbBrass" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#e8c98a"/><stop offset=".5" stop-color="#b08a4a"/><stop offset="1" stop-color="#7a5a2a"/></linearGradient>
-      <linearGradient id="mbRim" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#d9b393"/><stop offset=".6" stop-color="#8d6a52"/><stop offset="1" stop-color="#4f362a"/></linearGradient>
-    </defs>
-    <!-- post -->
-    <rect x="104" y="226" width="44" height="260" fill="url(#mbPost)"/>${grain}
-    <rect x="104" y="226" width="44" height="14" fill="rgba(0,0,0,.35)"/>
-    <path d="M150 238 L182 238 L150 274 Z" fill="#3a2718"/><path d="M150 238 L182 238" stroke="#1d130b" stroke-width="2"/>
-    <!-- top of the body -->
-    <path d="M36 146 A90 90 0 0 1 216 146 L288 104 A90 90 0 0 0 108 104 Z" fill="url(#mbTop)"/>
-    <path d="M126 57 L198 15" stroke="rgba(255,236,210,.42)" stroke-width="2.4" stroke-linecap="round"/>
-    <path d="M72 80 L144 38" stroke="rgba(255,236,210,.14)" stroke-width="10" stroke-linecap="round"/>
-    <!-- right side, with the nameplate skewed along it -->
-    <path d="M216 146 L216 236 L288 194 L288 104 Z" fill="url(#mbSide)"/>
-    <g transform="translate(224 176) skewY(-30.26)">
-      <rect x="0" y="-16" width="56" height="26" rx="2" fill="url(#mbBrass)" stroke="#3b2a12" stroke-width=".8"/>
-      <text x="28" y="3" text-anchor="middle" font-family="'Cormorant Garamond',Georgia,serif" font-weight="600" font-size="14" letter-spacing="2" fill="#2b1a08">LILY</text>
-    </g>
-    <!-- the dark inside, seen once the door is down -->
-    <path d="M42 146 A84 84 0 0 1 210 146 L210 230 L42 230 Z" fill="url(#mbIn)"/>
-    <!-- rim -->
-    <path d="M36 146 A90 90 0 0 1 216 146 L216 236 L36 236 Z" fill="none" stroke="url(#mbRim)" stroke-width="5"/>
-    ${rivets}
-  </svg>`;
-}
-export function mailboxDoorFront() {
-  let rivets = '';
-  for (let i = 0; i <= 8; i++) { const a = PI + i * PI / 8, x = 90 + 76 * cos(a), y = 90 + 76 * sin(a); rivets += `<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="1.7" fill="#2a120d" opacity=".55"/>`; }
-  return `<svg viewBox="0 0 180 180" aria-hidden="true">
-    <defs>
-      <linearGradient id="doorG" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#b86a52"/><stop offset=".5" stop-color="#8a3c2d"/><stop offset="1" stop-color="#4c1f17"/></linearGradient>
-      <linearGradient id="doorIn" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#9c4f3c"/><stop offset="1" stop-color="#61281e"/></linearGradient>
-      <linearGradient id="doorBrass" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#f0d7a2"/><stop offset=".5" stop-color="#b98f4f"/><stop offset="1" stop-color="#6e4f24"/></linearGradient>
-    </defs>
-    <path d="M1 90 A89 89 0 0 1 179 90 L179 179 L1 179 Z" fill="url(#doorG)" stroke="#2b120d" stroke-width="1.5"/>
-    <path d="M14 92 A76 76 0 0 1 166 92 L166 166 L14 166 Z" fill="url(#doorIn)" stroke="rgba(0,0,0,.35)" stroke-width="1"/>
-    <path d="M18 92 A72 72 0 0 1 162 92" fill="none" stroke="rgba(255,225,200,.22)" stroke-width="2"/>
-    ${rivets}
-    <rect x="68" y="20" width="44" height="13" rx="4" fill="url(#doorBrass)" stroke="#3b2a12" stroke-width=".8"/>
-    <rect x="72" y="33" width="36" height="4" rx="2" fill="rgba(0,0,0,.4)"/>
-    <rect x="1" y="170" width="178" height="9" fill="rgba(0,0,0,.35)"/>
-  </svg>`;
-}
-export function mailboxDoorBack() {
-  return `<svg viewBox="0 0 180 180" aria-hidden="true">
-    <defs><linearGradient id="doorBk" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#4a2e27"/><stop offset="1" stop-color="#2a1713"/></linearGradient></defs>
-    <path d="M1 90 A89 89 0 0 1 179 90 L179 179 L1 179 Z" fill="url(#doorBk)" stroke="#1a0b08" stroke-width="1.5"/>
-    <path d="M12 92 A78 78 0 0 1 168 92 L168 168 L12 168 Z" fill="none" stroke="rgba(255,255,255,.07)" stroke-width="1.5"/>
-    <rect x="1" y="166" width="178" height="13" fill="#15090700"/><rect x="40" y="168" width="100" height="8" rx="3" fill="#6b5546"/>
-  </svg>`;
-}
-export function mailboxFlag() {
-  return `<svg viewBox="0 0 60 120" aria-hidden="true">
-    <defs><linearGradient id="flagG" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#c8463a"/><stop offset="1" stop-color="#7d1f22"/></linearGradient></defs>
-    <g class="mb__flag-arm">
-      <rect x="22" y="8" width="12" height="96" rx="3" fill="url(#flagG)" stroke="#3a0f10" stroke-width="1"/>
-      <path d="M22 8 L52 20 L22 34 Z" fill="url(#flagG)" stroke="#3a0f10" stroke-width="1"/>
-      <path d="M22 8 L52 20" stroke="rgba(255,255,255,.3)" stroke-width="1"/>
-    </g>
-    <circle cx="28" cy="104" r="6" fill="#2c1a12" stroke="#d9b393" stroke-width="1.5"/>
-  </svg>`;
 }
 
 // ---------- envelope details ----------
