@@ -1,0 +1,96 @@
+/* Scene 3 — the envelope and the letter */
+.env-stage{position:absolute;inset:0;z-index:10;display:grid;place-items:center;pointer-events:none;padding:calc(var(--safe-top) + 56px) 16px calc(var(--safe-bottom) + 80px)}
+.env{position:relative;width:min(86vw,420px);aspect-ratio:1.5;perspective:1500px;pointer-events:none;cursor:pointer;-webkit-tap-highlight-color:transparent;
+  opacity:0;transform-origin:50% 50%;will-change:transform,opacity}
+.env.is-in{opacity:1;pointer-events:auto;transition:transform 1.5s var(--ease-out),opacity .6s ease}
+.env.is-away{pointer-events:none}
+.env.is-back{transition:transform 1.3s var(--ease-out),opacity .8s ease}
+.env__body{position:absolute;inset:0;transform-style:preserve-3d;transition:transform 1.5s cubic-bezier(.55,.05,.3,1)}
+.env.is-flipped .env__body{transform:rotateY(180deg)}
+.env__face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:4px;
+  background:linear-gradient(155deg,#f3ebd6 0%,#e9dec3 60%,#dccfb0 100%);box-shadow:0 24px 50px rgba(0,0,0,.55),0 2px 4px rgba(0,0,0,.4)}
+.env__face::before{content:"";position:absolute;inset:0;border-radius:4px;background-image:var(--grain);opacity:.5;mix-blend-mode:multiply;pointer-events:none}
+.env__face--front{transform:translateZ(.5px)}
+.env__face--back{transform:rotateY(180deg) translateZ(.5px);transform-style:preserve-3d;background:linear-gradient(155deg,#ecdfc6,#dfd2b5)}
+/* front: the address, a stamp, a postmark */
+.env__to{position:absolute;left:12%;top:30%;font-family:var(--hand);font-weight:500;color:#2b2a36;line-height:1.05;text-align:left}
+.env__to .env__name{display:block;font-size:calc(var(--ew) * .17);font-weight:600;letter-spacing:.01em}
+.env__to .env__sub{display:block;margin-top:.3em;font-size:calc(var(--ew) * .036);color:#5a5870;font-family:var(--mono);letter-spacing:.14em;text-transform:lowercase}
+.env__line{position:absolute;left:12%;height:1px;background:rgba(43,42,54,.18)}
+.env__stamp{position:absolute;right:5.5%;top:6%;width:17%;transform:rotate(2deg);filter:drop-shadow(0 1px 1px rgba(0,0,0,.2))}
+.env__stamp svg{width:100%;display:block}
+.env__postmark{position:absolute;right:21%;top:7%;width:30%;transform:rotate(-12deg)}
+.env__postmark svg{width:100%;display:block}
+/* back: pocket flaps, the top flap, the seal */
+.env__paper{position:absolute;inset:0}
+.env__pocket{position:absolute;inset:0;transform:translateZ(2px);pointer-events:none}
+.env__pocket svg{width:100%;height:100%;display:block}
+.env__flap{position:absolute;left:0;right:0;top:0;height:58%;transform-origin:50% 0;transform-style:preserve-3d;transform:translateZ(3px) rotateX(0);transition:transform 1.5s cubic-bezier(.6,0,.25,1)}
+.env.is-opened .env__flap{transform:translateZ(3px) rotateX(-176deg)}
+.env__flap .flap-face{position:absolute;inset:0;clip-path:polygon(0 0,100% 0,50% 100%);backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.env__flap .flap-face--front{background:linear-gradient(180deg,#eadcc0 0%,#dfd0b1 70%,#d2c3a3 100%);box-shadow:inset 0 -2px 3px rgba(0,0,0,.08)}
+.env__flap .flap-face::after,.env__flap .flap-face *{backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.env__flap .flap-face--front::after{content:"";position:absolute;inset:0;background-image:var(--grain);opacity:.45;mix-blend-mode:multiply}
+.env__flap .flap-face--back{transform:rotateX(180deg);background:linear-gradient(0deg,#e2d5b8,#d3c4a4)}
+.env__flap-shadow{position:absolute;left:0;right:0;top:58%;height:42%;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,.18),transparent 70%);clip-path:polygon(0 -100%,100% -100%,50% 0);opacity:1;transition:opacity 1.2s}
+.env.is-opened .env__flap-shadow{opacity:0}
+.env__seal{position:absolute;left:50%;top:100%;width:28%;aspect-ratio:1;transform:translate(-50%,-50%) translateZ(4px);filter:drop-shadow(0 2px 2px rgba(0,0,0,.35))}
+.env__seal svg{width:100%;height:100%;display:block;overflow:visible}
+.seal__half{transform-box:fill-box;transform-origin:50% 50%}
+.seal__crack{stroke-dasharray:1;stroke-dashoffset:1;opacity:0}
+.env.is-cracking .env__seal{animation:seal-shake .35s ease-in-out}
+.env.is-cracking .seal__crack{opacity:1;transition:stroke-dashoffset .4s ease-in .1s;stroke-dashoffset:0}
+.env.is-broken .seal__half--l{animation:seal-fall-l 1s cubic-bezier(.4,0,.8,.6) forwards}
+.env.is-broken .seal__half--r{animation:seal-fall-r 1.1s cubic-bezier(.4,0,.8,.6) forwards}
+.env.is-broken .seal__crack{opacity:0;transition:opacity .2s}
+@keyframes seal-shake{0%,100%{transform:translate(-50%,-50%) translateZ(4px)}25%{transform:translate(-52%,-51%) translateZ(4px) rotate(-3deg)}50%{transform:translate(-48%,-49%) translateZ(4px) rotate(3deg)}75%{transform:translate(-51%,-50%) translateZ(4px) rotate(-2deg)}}
+@keyframes seal-fall-l{0%{transform:none;opacity:1}100%{transform:translate(-34px,140px) rotate(-70deg);opacity:0}}
+@keyframes seal-fall-r{0%{transform:none;opacity:1}100%{transform:translate(30px,150px) rotate(55deg);opacity:0}}
+/* the folded letter inside */
+.env__letter{position:absolute;left:7%;width:86%;top:9%;transform:translateZ(1px);pointer-events:none;transition:transform 1.3s var(--ease-out)}
+.env.is-rising .env__letter{transform:translateZ(1px) translateY(-78%)}
+
+/* the letter, out in the open */
+.letter-stage{position:absolute;inset:0;z-index:12;display:grid;place-items:center;pointer-events:none;padding:calc(var(--safe-top) + 56px) 14px calc(var(--safe-bottom) + 84px)}
+.letter{position:relative;width:var(--lw);perspective:1300px;pointer-events:none;opacity:0;transform-origin:50% 50%;will-change:transform,opacity;--ph:calc(var(--lw) * .46)}
+.letter.is-in{opacity:1;pointer-events:auto}
+.letter__sheet{position:relative;height:calc(var(--ph) * 3);transform-style:preserve-3d}
+.letter__p{position:absolute;left:0;right:0;height:var(--ph);transform-style:preserve-3d}
+.letter__p .front{position:absolute;inset:0;overflow:hidden;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:linear-gradient(180deg,#f4ecd8,#ecdfc5);
+  padding:calc(var(--lw) * .06) calc(var(--lw) * .085);font-family:var(--hand);font-weight:500;font-size:calc(var(--lw) * .062);line-height:1.32;color:#2b2a36;white-space:nowrap}
+.letter__p .front *,.letter__p .front::before,.letter__p .back::before{backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.letter__p .front::before{content:"";position:absolute;inset:0;background-image:var(--grain);opacity:.5;mix-blend-mode:multiply;pointer-events:none}
+.letter__p p{margin:0 0 .35em;position:relative}
+.letter__p .back{position:absolute;inset:0;background:linear-gradient(180deg,#e9dcc2,#e1d3b7);transform:rotateX(180deg);backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.letter__p .back::before{content:"";position:absolute;inset:0;background-image:var(--grain);opacity:.45;mix-blend-mode:multiply}
+.letter__p .shade{position:absolute;inset:0;pointer-events:none;opacity:0;transition:opacity 1.3s ease}
+.letter__p--top{top:0;transform-origin:50% 100%;transform:translateZ(2px) rotateX(-180deg);transition:transform 1.5s cubic-bezier(.5,0,.25,1);box-shadow:0 -2px 10px rgba(0,0,0,.18)}
+.letter__p--mid{top:var(--ph);box-shadow:0 10px 30px rgba(0,0,0,.45)}
+.letter__p--bot{top:calc(var(--ph) * 2);transform-origin:50% 0;transform:translateZ(1px) rotateX(180deg);transition:transform 1.4s cubic-bezier(.5,0,.25,1);box-shadow:0 8px 20px rgba(0,0,0,.3)}
+.letter__p--top .shade{background:linear-gradient(0deg,rgba(0,0,0,.38),transparent 80%)}
+.letter__p--bot .shade{background:linear-gradient(180deg,rgba(0,0,0,.35),transparent 80%)}
+.letter.is-open1 .letter__p--top{transform:translateZ(2px) rotateX(0)}
+.letter.is-open2 .letter__p--bot{transform:translateZ(1px) rotateX(0)}
+.letter.is-open1 .letter__p--top .shade,.letter.is-open2 .letter__p--bot .shade{opacity:0}
+.letter.is-folding .letter__p--top .shade,.letter.is-folding .letter__p--bot .shade{opacity:1}
+.letter__sign{text-align:right;font-weight:600}
+.letter--flat{opacity:1}
+
+/* the cue for this stage sits under the paper */
+.garden .env-cue{z-index:14}
+
+@media (prefers-reduced-motion:reduce){
+  .env__body,.env__flap,.env__letter,.letter__p--top,.letter__p--bot{transition-duration:.6s}
+  .env.is-cracking .env__seal{animation:none}
+  .env.is-broken .seal__half--l,.env.is-broken .seal__half--r{animation:seal-fade .6s forwards}
+  @keyframes seal-fade{to{opacity:0}}
+}
+
+@media (orientation:landscape) and (max-height:520px){.env-stage,.letter-stage{padding:calc(var(--safe-top) + 46px) 16px calc(var(--safe-bottom) + 46px)}.garden .env-cue{bottom:calc(var(--safe-bottom) + 10px)}}
+
+/* while a panel unfolds, its text stays invisible until the panel has passed the halfway point */
+.letter.is-folding .letter__p--top .front,.letter.is-folding .letter__p--bot .front{visibility:hidden}
+.letter.is-open1 .letter__p--top .front{animation:front-show 1.5s steps(1,end) forwards}
+.letter.is-open2 .letter__p--bot .front{animation:front-show 1.4s steps(1,end) forwards}
+@keyframes front-show{0%{visibility:hidden}46%{visibility:visible}100%{visibility:visible}}
+@media (prefers-reduced-motion:reduce){.letter.is-open1 .letter__p--top .front,.letter.is-open2 .letter__p--bot .front{animation-duration:.6s}}

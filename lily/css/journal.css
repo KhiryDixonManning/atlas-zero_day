@@ -1,0 +1,210 @@
+/* Scene 4 and 5 — the journal and the last page */
+.journal{background:radial-gradient(ellipse 80% 60% at 50% 42%,#15182a 0%,#0a0c14 55%,#06070a 100%);user-select:none;-webkit-user-select:none}
+.journal__light{position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 60% 50% at 50% 45%,rgba(243,234,217,.08),transparent 70%)}
+.book{position:absolute;left:50%;top:calc(50% - 14px);width:var(--bw);height:var(--bh);transform:translate(-50%,-50%);perspective:1900px;perspective-origin:50% 50%;
+  --bw:min(92vw,520px);--bh:min(calc(100dvh - var(--safe-top) - var(--safe-bottom) - 150px),calc(var(--bw) * 1.5),680px)}
+.book::before,.book::after{content:"";position:absolute;inset:0;border-radius:3px;background:#dfd2b6;box-shadow:0 1px 2px rgba(0,0,0,.4);pointer-events:none}
+.book::before{transform:translate(3px,4px) rotate(.6deg)}.book::after{transform:translate(6px,8px) rotate(-.5deg);background:#d3c5a8}
+.page{position:absolute;inset:0;transform-origin:0 50%;transform-style:preserve-3d;transform:rotateY(0);transition:transform 1.15s cubic-bezier(.45,0,.2,1);will-change:transform;z-index:1}
+.page.is-turned{transform:rotateY(-180deg)}
+.page.is-hidden{visibility:hidden;pointer-events:none}
+.page__front,.page__back{position:absolute;inset:0;border-radius:3px;backface-visibility:hidden;-webkit-backface-visibility:hidden;
+  background:linear-gradient(170deg,#f5edd9 0%,#efe3c9 70%,#e8dbbe 100%);box-shadow:0 14px 40px rgba(0,0,0,.5),0 1px 2px rgba(0,0,0,.4)}
+.page__front::before,.page__back::before{content:"";position:absolute;inset:0;border-radius:3px;background-image:var(--grain);opacity:.5;mix-blend-mode:multiply;pointer-events:none}
+.page__back{background:linear-gradient(170deg,#eadfc8,#e2d3b3);transform:rotateY(180deg) translateZ(-1px)}
+.page__front{transform:translateZ(1px)}
+.page__front *,.page__front::before,.page__back::before{backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.page__fade{position:absolute;left:0;right:0;bottom:0;height:64px;border-radius:0 0 3px 3px;pointer-events:none;opacity:0;transition:opacity .4s;background:linear-gradient(180deg,rgba(232,219,190,0),rgba(232,219,190,.95))}
+.page.is-scrollable:not(.is-at-end) .page__fade{opacity:1}
+.page__shade{position:absolute;inset:0;border-radius:3px;pointer-events:none;opacity:0;transition:opacity .5s;background:linear-gradient(90deg,rgba(0,0,0,.28),rgba(0,0,0,.05) 40%,transparent)}
+.page.is-turning .page__shade{opacity:1}
+.page__inner{position:absolute;inset:0;padding:clamp(18px,5vw,30px) clamp(18px,5.5vw,32px) 22px;overflow-y:auto;-webkit-overflow-scrolling:touch;overscroll-behavior:contain;scrollbar-width:none}
+.page__inner::-webkit-scrollbar{display:none}
+.page__num{margin:0 0 10px;font-family:var(--mono);font-size:10px;letter-spacing:.22em;color:rgba(43,42,54,.5);text-transform:lowercase}
+.page__title{margin:0 0 10px;font-family:var(--serif);font-style:italic;font-weight:500;font-size:clamp(24px,6.4vw,30px);line-height:1.1;color:#2b2a36}
+.page__body{font-family:var(--hand);font-weight:500;font-size:clamp(17.5px,4.9vw,21.5px);line-height:1.34;color:#2b2a36}
+.page__body p{margin:0 0 .55em}
+.page__body .hl{background:linear-gradient(120deg,rgba(233,214,107,0) 0,rgba(233,214,107,0) 50%,rgba(233,214,107,.75) 50%);background-size:220% 100%;background-position:0 0;transition:background-position 1.2s cubic-bezier(.4,0,.2,1);border-radius:3px;padding:0 2px}
+.page__body .hl.is-on{background-position:-100% 0}
+.page__art{margin:8px 0 0;display:block;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.page__art svg{display:block;width:100%;height:auto;overflow:visible}
+.page__art--float{float:right;width:38%;max-width:150px;margin:-6px 0 6px 12px}
+.page__art--wide{width:min(100%,360px);margin:10px auto 0}
+.page__art--tall{width:min(64%,220px);margin:4px auto 0}
+.page__hint{clear:both;margin:10px 0 0;font-family:var(--mono);font-size:10px;letter-spacing:.2em;color:rgba(43,42,54,.45);text-align:center}
+.page__hint::before{content:"( "}.page__hint::after{content:" )"}
+
+/* ---- controls ---- */
+.journal__ctl{position:absolute;left:0;right:0;bottom:calc(var(--safe-bottom) + 14px);display:flex;align-items:center;justify-content:center;gap:10px;z-index:3}
+.journal__btn{display:grid;place-items:center;width:48px;height:48px;border-radius:50%;color:var(--ivory-dim);transition:color .3s,background .3s}
+.journal__btn:hover,.journal__btn:focus-visible{color:var(--ivory);background:rgba(243,234,217,.06)}
+.journal__btn[disabled]{opacity:.25;pointer-events:none}
+.journal__btn svg{width:20px;height:20px;stroke:currentColor;fill:none;stroke-width:1.4;stroke-linecap:round;stroke-linejoin:round}
+.journal__dots{display:flex;gap:6px;align-items:center}
+.journal__dot{width:5px;height:5px;border-radius:50%;background:rgba(243,234,217,.22);transition:background .4s,transform .4s;padding:0}
+.journal__dot.is-on{background:var(--ivory);transform:scale(1.35)}
+.journal__dot:focus-visible{outline-offset:6px}
+.journal__count{position:absolute;left:0;right:0;bottom:calc(var(--safe-bottom) + 64px);margin:0;text-align:center;font-family:var(--mono);font-size:10px;letter-spacing:.22em;color:rgba(243,234,217,.35);pointer-events:none}
+.book.is-jumping .page{transition:opacity .45s;opacity:0}
+
+/* ---- discoveries ---- */
+.sticker{display:inline-block;width:100%;transform:rotate(-6deg);transition:transform .7s cubic-bezier(.34,1.56,.64,1),filter .7s;filter:drop-shadow(0 1px 1px rgba(0,0,0,.25))}
+.sticker.is-peeled{transform:rotate(-24deg) translate(-16%,-34%) scale(.94);filter:drop-shadow(6px 10px 8px rgba(0,0,0,.3))}
+.sticker__mini{position:absolute;width:30%;pointer-events:none;animation:sticker-pop .9s cubic-bezier(.34,1.56,.64,1) both}
+@keyframes sticker-pop{from{transform:scale(0) rotate(-40deg);opacity:0}to{transform:scale(1) rotate(var(--r,0deg));opacity:1}}
+.page__art--bubbles .bubble__real{stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset 1s ease .3s}
+.page__art--bubbles .bubble__anyway{transition:opacity .5s}
+.page__art--bubbles.is-real .bubble__anyway{opacity:0}
+.page__art--bubbles.is-real .bubble__real{stroke-dashoffset:0}
+.page__art--notes .notes__hl{stroke-dasharray:1;stroke-dashoffset:1;transition:stroke-dashoffset 1.1s cubic-bezier(.4,0,.2,1)}
+.page__art--notes.is-on .notes__hl{stroke-dashoffset:0}
+.page__art--outfits .outfit{opacity:0;transform:translateY(6px);transition:opacity .6s,transform .6s;transform-box:fill-box;transform-origin:50% 100%}
+.page__art--outfits[data-outfit="0"] .outfit--0,.page__art--outfits[data-outfit="1"] .outfit--1,.page__art--outfits[data-outfit="2"] .outfit--2{opacity:1;transform:none}
+.page__art--tag .tag__bloom2{transform-box:fill-box;transform-origin:50% 50%;transform:scale(0);transition:transform 1.6s cubic-bezier(.34,1.3,.64,1) .9s}
+.page__art--tag .tag__tag{transform-box:fill-box;transform-origin:0 0}
+.page__art--tag.is-untagged .tag__tag{animation:tag-flutter 1.5s cubic-bezier(.4,0,.6,1) forwards}
+.page__art--tag.is-untagged .tag__bloom2{transform:scale(1)}
+@keyframes tag-flutter{0%{transform:none;opacity:1}30%{transform:translate(18px,10px) rotate(25deg)}60%{transform:translate(8px,46px) rotate(-10deg);opacity:.9}100%{transform:translate(30px,96px) rotate(40deg);opacity:0}}
+.cat .cat__lids{opacity:0}.cat .cat__eyes{opacity:1}.cat .cat__purr{transition:opacity .4s}
+.cat.is-purring .cat__lids{opacity:1}.cat.is-purring .cat__eyes{opacity:0}.cat.is-purring .cat__purr{opacity:.8!important}
+.cat .cat__tail{transform-box:fill-box;transform-origin:0 100%}
+.cat.is-purring .cat__tail{animation:tail 1.6s ease-in-out}
+@keyframes tail{0%,100%{transform:rotate(0)}30%{transform:rotate(-12deg)}70%{transform:rotate(8deg)}}
+.bowl .bowl__sq{transform-box:fill-box;transform-origin:50% 50%}
+.bowl.is-crunch .bowl__sq{animation:sq-hop .55s cubic-bezier(.3,1.5,.5,1)}
+.bowl.is-crunch .bowl__sq:nth-child(odd){animation-delay:.06s}
+@keyframes sq-hop{40%{transform:translateY(-9px) rotate(14deg)}}
+.bowl__steam,.dumpling__steam{transform-box:fill-box;transform-origin:50% 100%}
+.dumpling.is-steam .dumpling__steam,.bowl.is-steam .bowl__steam{animation:steam 1.8s ease-out}
+@keyframes steam{0%{opacity:0;transform:translateY(6px) scale(.8)}25%{opacity:.6}100%{opacity:0;transform:translateY(-14px) scale(1.1)}}
+.hp__note{font-family:var(--serif);font-size:22px;fill:#2b2a36;animation:note-rise 2.2s ease-out forwards;transform-box:fill-box;transform-origin:50% 50%}
+@keyframes note-rise{0%{opacity:0;transform:translate(0,10px) rotate(-8deg)}15%{opacity:.9}100%{opacity:0;transform:translate(var(--dx,0px),-70px) rotate(8deg)}}
+.bench__fly{animation:fly-blink 3.4s ease-in-out infinite;transform-box:fill-box;transform-origin:50% 50%}
+@keyframes fly-blink{0%,55%,100%{opacity:.1}70%{opacity:1;filter:drop-shadow(0 0 4px #d9e38f)}}
+
+/* ---- the last page ---- */
+.page--finale .page__inner{display:flex;flex-direction:column;align-items:center;text-align:center}
+.page--finale .page__inner > *{flex:none;width:100%}
+.pl{position:relative;width:min(72%,250px);margin:4px auto 0;cursor:pointer;-webkit-tap-highlight-color:transparent;transition:transform 2.4s var(--ease-out),margin 2.4s var(--ease-out)}
+.pl__svg{display:block;width:100%;height:auto;overflow:visible}
+.pl__stem{stroke:#9c8a60;transition:stroke 2.4s}
+.pl__leaf{fill:#b7a77f;stroke:#7d6d47;transition:fill 2.4s,stroke 2.4s}
+.pl__petal{transform-box:fill-box;transform-origin:50% 100%;transform:rotate(var(--j)) scale(.9,.84);transition:transform 2.8s cubic-bezier(.4,0,.2,1) calc(var(--i) * .16s)}
+.pl__petalpath{fill:url(#plDry);stroke:#8d7d57;transition:fill 2s calc(var(--i) * .16s),stroke 2s}
+.pl__vein{stroke:#8d7d57;transition:stroke 2s}
+.pl__stamen{opacity:0;transform-box:fill-box;transform-origin:0 0;transform:scale(.2);transition:opacity 1s calc(1.6s + var(--i) * .1s),transform 1.6s cubic-bezier(.34,1.3,.64,1) calc(1.6s + var(--i) * .1s)}
+.pl__centre{fill:#a08e62;transition:fill 2s}
+.pl__glow{transition:opacity 2.4s ease 1.4s}
+.pl__tape{transition:opacity 1s}
+.pl.is-blooming .pl__petal{transform:rotate(0deg) scale(1.08,1)}
+.pl.is-blooming .pl__petalpath{fill:url(#plLive);stroke:#b9b9a6}
+.pl.is-blooming .pl__vein{stroke:#c8cfa0}
+.pl.is-blooming .pl__stamen{opacity:1;transform:scale(1)}
+.pl.is-blooming .pl__stem{stroke:#4f7a48}.pl.is-blooming .pl__leaf{fill:#6f9a60;stroke:#2f4b36}
+.pl.is-blooming .pl__centre{fill:#c9d48a}.pl.is-blooming .pl__glow{opacity:.75}.pl.is-blooming .pl__tape{opacity:0}
+.pl.is-alive .pl__head{animation:pl-breathe 6s ease-in-out infinite alternate;transform-box:fill-box;transform-origin:50% 60%}
+@keyframes pl-breathe{from{transform:rotate(-1.2deg) scale(1)}to{transform:rotate(1.2deg) scale(1.025)}}
+.pl.is-alive{transform:scale(.8);margin-top:-16px;margin-bottom:-26px}
+.pl__glyph{position:absolute;left:50%;top:42%;font-family:var(--hand);font-weight:500;color:#2b2a36;pointer-events:none;opacity:0;animation:glyph-rise 2.6s ease-out var(--d) forwards}
+@keyframes glyph-rise{0%{opacity:0;transform:translate(var(--x0),0) scale(.6)}20%{opacity:.75}100%{opacity:0;transform:translate(var(--x1),var(--y1)) scale(1)}}
+.finale__text{margin:6px 0 0;max-height:0;opacity:0;overflow:hidden;transition:max-height 2s var(--ease-out),opacity 1.6s ease .4s}
+.finale__text.is-in{max-height:900px;opacity:1}
+.finale__text p{opacity:0;transform:translateY(6px);transition:opacity 1.6s var(--ease-out),transform 1.6s var(--ease-out)}
+.finale__text.is-in p{opacity:1;transform:none}
+.finale__text.is-in p:nth-child(2){transition-delay:1.2s}.finale__text.is-in p:nth-child(3){transition-delay:2.4s}.finale__text.is-in p:nth-child(4){transition-delay:3.8s}
+.finale__sign{font-weight:600;text-align:right}
+.finale__actions{display:flex;flex-direction:column;gap:4px;align-items:center;margin:14px 0 0;opacity:0;transition:opacity 1.4s ease 5s}
+.finale__text.is-in + .finale__actions{opacity:1}
+.finale__btn{min-height:44px;padding:0 14px;border-radius:22px;font-family:var(--mono);font-size:11px;letter-spacing:.2em;color:rgba(43,42,54,.7);transition:color .3s,background .3s}
+.finale__btn:hover,.finale__btn:focus-visible{color:#2b2a36;background:rgba(43,42,54,.07)}
+.page--finale .page__hint{margin-top:4px;transition:opacity .8s}
+.pl.is-blooming ~ .page__hint{opacity:0}
+
+@media (max-height:700px){.page__body{font-size:clamp(16px,4.5vw,19px)}.page__title{font-size:clamp(22px,5.6vw,26px)}.book{--bh:min(calc(100dvh - var(--safe-top) - var(--safe-bottom) - 128px),calc(var(--bw) * 1.5))}}
+@media (orientation:landscape) and (max-height:520px){.book{--bw:min(70vw,520px);--bh:calc(100dvh - 110px);top:calc(50% - 10px)}.journal__count{display:none}}
+@media (prefers-reduced-motion:reduce){
+  .page{transition:opacity .7s ease,visibility .7s}
+  .page.is-turned{transform:none;opacity:0}
+  .page.is-turning .page__shade{opacity:0}
+  .pl__petal,.pl__petalpath,.pl__stamen,.pl__stem,.pl__leaf,.pl__glow{transition-duration:1s}
+  .pl.is-alive .pl__head{animation:none}
+  .pl__glyph,.bench__fly{animation:none}
+}
+
+/* ===================== phase two refinements ===================== */
+/* type: a touch larger on phones for comfortable reading */
+.page__body{font-size:clamp(18.5px,5.1vw,22px);line-height:1.36}
+.page__inner{padding-bottom:56px}
+
+/* dots: 5px marks, 24px targets */
+.journal__dots{gap:0}
+.journal__dot{width:22px;height:28px;background:none;transform:none;position:relative;display:grid;place-items:center}
+.journal__dot::after{content:"";width:5px;height:5px;border-radius:50%;background:rgba(243,234,217,.22);transition:background .4s,transform .4s}
+.journal__dot.is-on::after{background:var(--ivory);transform:scale(1.35)}
+.journal__dot.is-on{background:none;transform:none}
+
+/* the book follows her finger */
+.book{touch-action:pan-y}
+.page.is-dragging{transition:none}
+.page.is-dragging .page__shade{opacity:1;transition:none}
+.page.is-settling{transition:transform .6s cubic-bezier(.2,.7,.3,1)}
+
+/* ink drawing that draws itself */
+.ink .ink__s{stroke-dasharray:var(--len,600);stroke-dashoffset:var(--len,600);transition:stroke-dashoffset var(--dur,1.2s) cubic-bezier(.4,0,.3,1) var(--delay,0s)}
+.page__art--inklily.is-drawn .ink__s{stroke-dashoffset:0}
+.page__art--inklily{width:min(56%,200px);margin:4px auto 0;cursor:default}
+
+/* the sticker's hidden note */
+.page__art--sticker{position:relative}
+.sticker__under{position:absolute;left:4%;top:58%;width:92%;text-align:center;font-family:var(--hand);font-weight:500;font-size:clamp(13px,3.6vw,15px);line-height:1.2;color:#2b2a36;opacity:0;transform:rotate(-4deg);transition:opacity .6s .25s;pointer-events:none}
+.sticker.is-peeled ~ .sticker__under{opacity:.85}
+.sticker{position:relative;z-index:1}
+
+/* the fence of jokes becomes a plain line */
+.page__art--bubbles .bubble__anyway{stroke-dasharray:1;stroke-dashoffset:0;transition:opacity .5s}
+
+/* the pressed leaf takes a breath */
+.page__art--leaf svg > g{transform-box:fill-box;transform-origin:50% 100%;transition:transform 1.4s cubic-bezier(.3,.8,.3,1)}
+.page__art--leaf.is-lifted svg > g{transform:rotate(-9deg) translate(2px,-8px)}
+
+/* margin notes: a folded corner, then a handwritten aside */
+.page__corner{position:absolute;right:0;bottom:0;width:48px;height:48px;z-index:3;cursor:pointer;-webkit-tap-highlight-color:transparent}
+.page__corner::before{content:"";position:absolute;right:0;bottom:0;width:0;height:0;border-style:solid;border-width:0 0 26px 26px;border-color:transparent transparent #d9c9a7 transparent;transition:border-width .5s cubic-bezier(.34,1.3,.64,1);filter:drop-shadow(-1px -1px 1px rgba(0,0,0,.12))}
+.page__corner::after{content:"";position:absolute;right:0;bottom:0;width:26px;height:26px;background:linear-gradient(225deg,#efe3c9 50%,transparent 50%);transition:width .5s,height .5s}
+.page__corner:hover::before,.page__corner:focus-visible::before{border-width:0 0 34px 34px}
+.page.has-note .page__corner{animation:corner-nudge 5s ease-in-out 3s infinite}
+@keyframes corner-nudge{0%,90%,100%{transform:none}93%{transform:translate(-2px,-2px)}96%{transform:none}}
+.page__margin{position:absolute;right:14px;bottom:30px;max-width:72%;padding:8px 12px;z-index:4;font-family:var(--hand);font-weight:500;font-size:clamp(15px,4.2vw,18px);line-height:1.25;color:#3a3348;
+  background:rgba(245,238,224,.96);border:1px solid rgba(43,42,54,.12);box-shadow:0 6px 16px rgba(0,0,0,.18);transform:rotate(-3deg) translateY(10px) scale(.96);transform-origin:100% 100%;opacity:0;pointer-events:none;transition:opacity .5s,transform .6s cubic-bezier(.34,1.3,.64,1)}
+.page__margin::before{content:"";position:absolute;left:14px;top:-7px;width:40px;height:12px;background:rgba(233,214,107,.55);transform:rotate(-2deg)}
+.page.is-noted .page__margin{opacity:1;transform:rotate(-3deg);pointer-events:auto}
+.page.is-noted .page__corner{animation:none}
+.page.is-noted .page__corner::before{border-width:0 0 40px 40px}
+
+/* the cat has moods */
+.cat .cat__wide,.cat .cat__mrrp{opacity:0;transition:opacity .25s}
+.cat.is-curious .cat__eyes{opacity:0}.cat.is-curious .cat__wide{opacity:1}.cat.is-curious .cat__mrrp{opacity:.8}
+.cat.is-curious .cat__tail{animation:tail-flick .5s ease-in-out 2}
+@keyframes tail-flick{50%{transform:rotate(-16deg)}}
+.cat .cat__eyes{animation:cat-blink 6s infinite}
+@keyframes cat-blink{0%,96%,100%{transform:none}98%{transform:scaleY(.1)}}
+.cat .cat__eyes{transform-box:fill-box;transform-origin:50% 50%}
+
+/* the ending: the bloom finishes, then the words are written */
+.finale__text{transition:max-height 1.6s var(--ease-out),opacity .8s ease}
+.finale__text p{opacity:1;transform:none;transition:none}
+.finale__text .w{display:inline-block;padding:.06em .14em;margin:-.06em -.14em;color:transparent;-webkit-background-clip:text;background-clip:text;
+  background-image:linear-gradient(90deg,#2b2a36 0 48%,rgba(43,42,54,.25) 50%,transparent 54% 100%);background-size:220% 100%;background-position:100% 0;
+  filter:blur(.6px);transition:background-position .55s linear var(--d,0s),filter .5s ease calc(var(--d,0s) + .2s)}
+.finale__text.is-in .w{background-position:0 0;filter:blur(0)}
+.finale__caption{margin:4px 0 2px;font-family:var(--serif);font-style:italic;font-size:clamp(13px,3.6vw,15px);letter-spacing:.04em;color:rgba(43,42,54,.55);opacity:0;transition:opacity 1.6s ease 1s}
+.pl.is-alive ~ .finale__caption{opacity:1}
+.finale__actions{transition-delay:1s}
+.pl.is-alive{transform:scale(.78);margin-top:-14px;margin-bottom:-30px}
+
+@media (prefers-reduced-motion:reduce){
+  .ink .ink__s{transition-duration:.4s;transition-delay:0s}
+  .finale__text .w{transition:none;background-position:0 0;filter:none}
+  .page.has-note .page__corner,.cat .cat__eyes{animation:none}
+  .page__margin{transition-duration:.3s}
+}
