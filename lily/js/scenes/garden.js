@@ -77,7 +77,7 @@ export function createGarden(ctx) {
         <div class="env__body">
           <div class="env__face env__face--front">${envelopeFront()}<div class="env__dimmer"></div></div>
           <div class="env__face env__face--back">
-            <div class="env__backpanel"></div><div class="env__dimmer"></div>
+            <div class="env__backpanel"></div>
             <div class="env__letter"><div class="env__letter-paper"></div></div>
             <div class="env__pocket">${POCKET}</div>
             <div class="env__flap-shadow">${FLAP_SHADOW}</div>
@@ -85,6 +85,7 @@ export function createGarden(ctx) {
               <div class="flap-face flap-face--front">${FLAP_FRONT}<div class="env__seal">${seal()}</div></div>
               <div class="flap-face flap-face--back">${FLAP_BACK}</div>
             </div>
+            <div class="env__dimmer"></div>
           </div>
         </div>
       </div>
@@ -297,7 +298,8 @@ export function createGarden(ctx) {
     },
     async exit({ reveal }) {
       setCue('');
-      if (state === 'letter') { letter.classList.add('is-leaving'); await wait(RM ? 200 : 380); }
+      root.classList.add('is-leaving');
+      if (state === 'letter') { letter.classList.add('is-leaving'); await wait(RM ? 200 : 480); }
       reveal(); await wait(200);
     },
     destroy() { stop(); clearLater(); window.removeEventListener('resize', onResize); document.removeEventListener('visibilitychange', onVis); },
