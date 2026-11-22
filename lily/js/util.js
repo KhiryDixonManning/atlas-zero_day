@@ -31,3 +31,25 @@ export function noise2(x, y) {
   const A = PERM[X] + Y, B = PERM[X + 1] + Y;
   return lerp(lerp(grad(PERM[A], x, y), grad(PERM[B], x - 1, y), u), lerp(grad(PERM[A + 1], x, y - 1), grad(PERM[B + 1], x - 1, y - 1), u), v);
 }
+
+// A frame-driven tween. fn receives eased progress 0..1. Returns a promise; call .cancel() to stop it.
+export const EASE = {
+  out: x => 1 - Math.pow(1 - x, 3),
+  inOut: x => x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2,
+  in: x => x * x * x,
+  soft: x => x * x * (3 - 2 * x),
+  hinge: x => x < 0.3 ? 0.18 * (x / 0.3) * (x / 0.3) : 0.18 + 0.82 * (1 - Math.pow(1 - (x - 0.3) / 0.7, 2.6)),   // paper lifts slowly, then falls over
+};
+export function tween(ms, ease, fn) {
+  let raf = 0, done = false, resolve;
+  const p = new Promise(r => { resolve = r; });
+  const t0 = performance.now();
+  const step = now => {
+    if (done) return;
+    const k = Math.min(1, (now - t0) / ms); fn(ease(k), k);
+    if (k < 1) raf = requestAnimationFrame(step); else { done = true; resolve(); }
+  };
+  raf = requestAnimationFrame(step);
+  p.cancel = () => { if (!done) { done = true; cancelAnimationFrame(raf); resolve(); } };
+  return p;
+}
