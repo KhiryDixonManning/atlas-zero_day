@@ -1,0 +1,25 @@
+/* Scene 1 — the first bloom */
+.bloom{background:var(--ink);touch-action:none;user-select:none;-webkit-user-select:none;cursor:default}
+.bloom canvas{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
+.bloom__glow{filter:blur(9px) brightness(1.45) saturate(1.1);opacity:.85}
+.bloom::after{content:"";position:absolute;inset:0;pointer-events:none;background:radial-gradient(ellipse 70% 50% at 50% 38%,rgba(217,227,143,.035),transparent 70%)}
+.bloom__title{position:absolute;left:24px;right:24px;top:70%;text-align:center;pointer-events:none}
+.bloom__eyebrow{margin:0;font-family:var(--serif);font-style:italic;font-weight:400;font-size:clamp(22px,6vw,34px);letter-spacing:.02em;color:var(--ivory);
+  opacity:0;transform:translateY(8px);transition:opacity 2.4s var(--ease-out),transform 2.4s var(--ease-out)}
+.bloom__name{margin:4px 0 0;font-family:var(--hand);font-weight:600;font-size:clamp(50px,15vw,84px);line-height:1;color:var(--lily);
+  opacity:0;transform:translateY(10px) scale(.98);transition:opacity 2.6s var(--ease-out),transform 2.6s var(--ease-out);
+  text-shadow:0 0 24px rgba(251,247,239,.25)}
+.bloom__eyebrow.is-in,.bloom__name.is-in{opacity:1;transform:none}
+.bloom.is-leaving{background:transparent}
+.bloom.is-leaving::after{opacity:0;transition:opacity 1.2s}
+.bloom::after{transition:opacity 1.2s}
+.bloom.is-leaving .bloom__eyebrow,.bloom.is-leaving .bloom__name,.bloom.is-leaving .scene__cue{opacity:0;transition-duration:1.1s}
+@media (orientation:landscape) and (min-width:700px){
+  .bloom__title{left:58%;right:24px;top:50%;transform:translateY(-58%);text-align:left}
+  .bloom__eyebrow{font-size:clamp(22px,7vh,36px)}
+  .bloom__name{font-size:clamp(50px,16vh,96px)}
+  .bloom .scene__cue{left:58%;right:24px;text-align:left;bottom:calc(var(--safe-bottom) + 22px)}
+}
+@media (prefers-reduced-motion:reduce){
+  .bloom__eyebrow,.bloom__name{transform:none;transition-duration:1.4s}
+}
