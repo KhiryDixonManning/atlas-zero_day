@@ -232,6 +232,33 @@ export function seal() {
 // Ink on cream. Each returns an SVG string; the journal wires up the interactions.
 const INK = '#2b2a36';
 export const JOURNAL_ART = {
+  inklily: () => `<svg viewBox="0 0 200 300" aria-hidden="true" class="ink">
+    <g fill="none" stroke="${INK}" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round">
+      <!-- stem -->
+      <path class="ink__s" d="M104 292 C 103 250, 101 210, 99 168 C 98 150, 100 136, 104 126"/>
+      <path class="ink__s" d="M100 172 C 112 150, 126 118, 138 70"/>
+      <!-- bud -->
+      <path class="ink__s" d="M138 72 C 128 58, 128 30, 140 14 C 152 30, 152 58, 142 72 Z"/>
+      <path class="ink__s" d="M140 20 L 139 68 M134 30 L 136 66 M146 30 L 144 66"/>
+      <!-- leaves -->
+      <path class="ink__s" d="M100 212 C 70 204, 48 212, 34 234 C 60 236, 86 230, 100 212 Z"/>
+      <path class="ink__s" d="M100 212 L 44 232"/>
+      <path class="ink__s" d="M102 246 C 134 238, 160 242, 180 262 C 150 266, 122 262, 102 246 Z"/>
+      <path class="ink__s" d="M104 248 L 170 260"/>
+      <path class="ink__s" d="M118 130 C 134 118, 150 114, 166 118 C 152 130, 134 136, 118 130 Z"/>
+      <!-- the open flower: six tepals around a centre at 100,120 -->
+      <path class="ink__s" d="M100 120 C 92 100, 86 72, 96 48 C 112 70, 112 98, 100 120 Z"/>
+      <path class="ink__s" d="M100 120 C 112 106, 140 90, 170 92 C 150 112, 122 122, 100 120 Z"/>
+      <path class="ink__s" d="M100 120 C 118 130, 142 148, 150 176 C 124 166, 106 146, 100 120 Z"/>
+      <path class="ink__s" d="M100 120 C 92 142, 78 164, 56 176 C 60 150, 78 132, 100 120 Z"/>
+      <path class="ink__s" d="M100 120 C 82 118, 54 110, 34 92 C 60 88, 86 102, 100 120 Z"/>
+      <path class="ink__s" d="M100 120 C 84 108, 68 86, 66 60 C 86 72, 98 96, 100 120 Z"/>
+      <path class="ink__s" d="M98 58 L 100 112 M160 96 L 108 118 M140 166 L 104 126 M62 168 L 96 126 M44 94 L 92 118 M72 66 L 96 112"/>
+      <!-- stamens -->
+      <path class="ink__s" d="M100 120 L 112 100 M100 120 L 118 110 M100 120 L 116 126 M100 120 L 90 104 M100 120 L 84 114 M100 120 L 92 132"/>
+      <path class="ink__s" d="M112 100 l 3 -4 M118 110 l 4 -2 M116 126 l 4 1 M90 104 l -3 -4 M84 114 l -4 -2 M92 132 l -3 3"/>
+    </g>
+  </svg>`,
   sticker: () => `<svg viewBox="0 0 120 120" aria-hidden="true">
     <defs><radialGradient id="stkG" cx=".4" cy=".35" r=".8"><stop offset="0" stop-color="#fff6ec"/><stop offset="1" stop-color="#f1dfc8"/></radialGradient></defs>
     <g class="sticker__body">
@@ -251,7 +278,7 @@ export const JOURNAL_ART = {
     <g class="bubble bubble--1"><rect x="6" y="6" width="120" height="34" rx="16" fill="#e7dcc3" stroke="${INK}" stroke-width="1.2"/><path d="M22 24 q10 -8 20 0 t20 0 t20 0 t20 0" fill="none" stroke="${INK}" stroke-width="1.4" stroke-linecap="round" opacity=".7"/></g>
     <g class="bubble bubble--2"><rect x="80" y="46" width="134" height="34" rx="16" fill="#dfe5d8" stroke="${INK}" stroke-width="1.2"/><path d="M96 64 q8 -9 16 0 t16 0 t16 0 t16 0 t16 0" fill="none" stroke="${INK}" stroke-width="1.4" stroke-linecap="round" opacity=".7"/></g>
     <g class="bubble bubble--3"><rect x="6" y="86" width="150" height="36" rx="16" fill="#e7dcc3" stroke="${INK}" stroke-width="1.2"/>
-      <text class="bubble__anyway" x="26" y="112" font-family="Caveat,cursive" font-size="20" font-weight="600" fill="${INK}">anyway.</text>
+      <path class="bubble__anyway" d="M24 106 q6 -14 12 0 t12 0 t12 0 t12 0 t12 0 t12 0 t12 0 t12 0 t12 0 t12 0" fill="none" stroke="${INK}" stroke-width="1.6" stroke-linecap="round" opacity=".7"/>
       <path class="bubble__real" d="M26 106 L136 106" fill="none" stroke="${INK}" stroke-width="1.6" stroke-linecap="round" pathLength="1"/></g>
   </svg>`,
   leaf: () => `<svg viewBox="0 0 160 120" aria-hidden="true">
@@ -312,10 +339,12 @@ export const JOURNAL_ART = {
       <path class="cat__tail" d="M92 118 C 112 122, 122 108, 112 92" fill="none" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>
       <path class="cat__tail" d="M92 118 C 112 122, 122 108, 112 92" fill="none" stroke="#8f8a90" stroke-width="3" stroke-linecap="round"/>
       <g class="cat__eyes"><ellipse cx="56" cy="80" rx="3" ry="4" fill="${INK}"/><ellipse cx="74" cy="80" rx="3" ry="4" fill="${INK}"/></g>
+      <g class="cat__wide"><circle cx="56" cy="80" r="4.6" fill="${INK}"/><circle cx="74" cy="80" r="4.6" fill="${INK}"/><circle cx="57.5" cy="78.5" r="1.3" fill="#f5efe0"/><circle cx="75.5" cy="78.5" r="1.3" fill="#f5efe0"/></g>
       <g class="cat__lids"><path d="M52 80 Q56 83 60 80 M70 80 Q74 83 78 80" fill="none" stroke="${INK}" stroke-width="1.6" stroke-linecap="round"/></g>
       <path d="M63 88 L65 91 L67 88 Z" fill="${INK}"/><path d="M60 94 Q65 97 70 94" fill="none" stroke="${INK}" stroke-width="1" stroke-linecap="round"/>
       <path d="M40 90 L54 92 M40 96 L54 95 M90 90 L76 92 M90 96 L76 95" stroke="${INK}" stroke-width=".8" opacity=".7"/>
       <text class="cat__purr" x="100" y="70" font-family="Caveat,cursive" font-size="15" fill="${INK}" opacity="0">prrr</text>
+      <text class="cat__mrrp" x="100" y="70" font-family="Caveat,cursive" font-size="15" fill="${INK}" opacity="0">mrrp?</text>
     </g>
     <g class="bowl"><!-- a bowl of cereal -->
       <ellipse cx="190" cy="98" rx="46" ry="12" fill="#f5efe0" stroke="${INK}" stroke-width="1.2"/>
@@ -335,7 +364,6 @@ export const JOURNAL_ART = {
     <rect x="128" y="84" width="24" height="40" rx="9" fill="#c9b7d6" stroke="${INK}" stroke-width="1.4"/>
     <rect x="36" y="92" width="8" height="24" rx="4" fill="${INK}" opacity=".35"/><rect x="136" y="92" width="8" height="24" rx="4" fill="${INK}" opacity=".35"/>
     <g class="hp__notes" transform="translate(90 72)"></g>
-    <text x="90" y="138" text-anchor="middle" font-family="'IBM Plex Mono',monospace" font-size="7.5" letter-spacing="2" fill="${INK}" opacity=".55">NO EXPLANATION NEEDED</text>
   </svg>`,
   bench: () => `<svg viewBox="0 0 220 120" aria-hidden="true">
     <circle cx="34" cy="20" r="10" fill="#f3ead9" stroke="${INK}" stroke-width="1" opacity=".9"/>

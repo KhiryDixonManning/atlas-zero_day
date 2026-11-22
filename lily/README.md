@@ -50,9 +50,15 @@ lily/
 * **Scene 3** uses FLIP transitions so the envelope leaves the mailbox and
   the letter leaves the envelope without a cut. The wax seal is two SVG
   halves under clip paths that split along a crack.
-* **Scenes 4 and 5** are a stack of pages that rotate around the left edge.
-  Pages scroll internally on short screens. Each illustration has a small
-  interaction; the pressed lily on the last page blooms when touched.
+* **Scenes 4 and 5** are a stack of pages that rotate around the left edge
+  and follow a dragging finger. Pages scroll internally on short screens.
+  Each illustration has a small interaction, three pages hide a note under
+  a folded corner, the first page draws its own ink lily, and the pressed
+  lily on the last page blooms before the closing words are written in.
+
+The writing in `js/content.js` uses only what Lily actually shared. It
+never quotes her and never invents a scene; change a line there and the
+page updates.
 
 ## Navigation
 

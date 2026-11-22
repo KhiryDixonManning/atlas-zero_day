@@ -5,7 +5,8 @@ import { NOTE } from '../content.js';
 import { JOURNAL_ART, pressedLily } from '../art.js';
 
 const GLYPHS = 'theartofnoticinglily';
-const ART_LAYOUT = { sticker: 'float', leaf: 'float', notes: 'wide', bubbles: 'wide', outfits: 'tall', tag: 'tall', comforts: 'wide', headphones: 'float', bench: 'wide' };
+const ART_LAYOUT = { inklily: 'wide', sticker: 'float', leaf: 'float', notes: 'wide', bubbles: 'wide', outfits: 'tall', tag: 'tall', comforts: 'wide', headphones: 'float', bench: 'wide' };
+const words = t => t.split(' ').map(w => `<span class="w">${w}</span>`).join(' ');
 
 export function createJournal(ctx) {
   const RM = ctx.reduced;
@@ -34,7 +35,8 @@ export function createJournal(ctx) {
     } else if (p.kind === 'finale') {
       inner += `<div class="pl" role="button" tabindex="0" aria-label="A pressed lily. Touch it.">${pressedLily()}</div>
         <p class="page__hint">touch the lily</p>
-        <div class="finale__text page__body">${p.closing.map(t => `<p>${t}</p>`).join('')}<p class="finale__sign">${p.sign}</p></div>
+        <p class="finale__caption">${p.caption || ''}</p>
+        <div class="finale__text page__body">${p.closing.map(t => `<p>${words(t)}</p>`).join('')}<p class="finale__sign">${words(p.sign)}</p></div>
         <div class="finale__actions">
           <button class="finale__btn" type="button" data-act="letter">read the letter again</button>
           <button class="finale__btn" type="button" data-act="garden">back to the garden</button>
@@ -47,8 +49,10 @@ export function createJournal(ctx) {
       inner += layout === 'float' ? art + body : body + art;
       if (p.hint) inner += `<p class="page__hint">${p.hint}</p>`;
     }
-    page.innerHTML = `<div class="page__front"><div class="page__inner">${inner}</div><div class="page__fade"></div><div class="page__shade"></div></div><div class="page__back"></div>`;
+    if (p.margin) { inner += `<div class="page__margin" aria-live="polite">${p.margin}</div>`; page.classList.add('has-note'); }
+    page.innerHTML = `<div class="page__front"><div class="page__inner">${inner}</div>${p.margin ? '<button class="page__corner" type="button" aria-label="A note in the margin"></button>' : ''}<div class="page__fade"></div><div class="page__shade"></div></div><div class="page__back"></div>`;
     const innerEl = page.querySelector('.page__inner'); innerEl.addEventListener('scroll', () => trackScroll(page), { passive: true });
+    const marginEl = page.querySelector('.page__margin'); if (marginEl) page.querySelector('.page__front').appendChild(marginEl);
     book.appendChild(page);
     const d = el('button', 'journal__dot'); d.type = 'button'; d.setAttribute('role', 'tab'); d.setAttribute('aria-label', `Page ${i + 1}`); d.addEventListener('click', () => jump(i)); dots.appendChild(d);
     return page;
@@ -67,12 +71,17 @@ export function createJournal(ctx) {
     for (let i = 0; i < N; i++) { const pg = pageEls[i]; const turned = i < n; pg.classList.toggle('is-turned', turned); pg.classList.toggle('is-hidden', turned); pg.classList.remove('is-turning'); }
     cur = n; sync();
   }
+  function arrive() {
+    pageEls.forEach((pg, i) => { if (i !== cur) pg.classList.remove('is-noted'); });
+    if (ink && cur === 0) requestAnimationFrame(() => ink.classList.add('is-drawn'));
+  }
   function sync() {
     dots.querySelectorAll('.journal__dot').forEach((d, i) => { d.classList.toggle('is-on', i === cur); d.setAttribute('aria-selected', String(i === cur)); });
     count.textContent = `${cur + 1} / ${N}`;
     prevB.disabled = cur === 0; nextB.disabled = cur === N - 1;
     ctx.setPage(cur);
     pageEls[cur].querySelector('.page__inner').scrollTop = 0;
+    arrive();
     requestAnimationFrame(() => trackScroll(pageEls[cur]));
   }
   async function next() {
@@ -99,11 +108,47 @@ export function createJournal(ctx) {
     book.classList.remove('is-jumping'); await wait(480); busy = false;
   }
   prevB.addEventListener('click', prev); nextB.addEventListener('click', next);
-  // swipe
-  let sx = 0, sy = 0, sw = false;
-  book.addEventListener('pointerdown', e => { sx = e.clientX; sy = e.clientY; sw = true; });
-  book.addEventListener('pointerup', e => { if (!sw) return; sw = false; const dx = e.clientX - sx, dy = e.clientY - sy; if (Math.abs(dx) > 48 && Math.abs(dx) > Math.abs(dy) * 1.4) { dx < 0 ? next() : prev(); } });
-  book.addEventListener('pointercancel', () => { sw = false; });
+  // drag to turn: the page follows her finger, then completes or settles back
+  let drag = null;
+  book.addEventListener('pointerdown', e => {
+    if (busy || e.button > 0) return;
+    drag = { id: e.pointerId, x0: e.clientX, y0: e.clientY, dx: 0, mode: null, pg: null };
+  });
+  book.addEventListener('pointermove', e => {
+    if (!drag || e.pointerId !== drag.id) return;
+    const dx = e.clientX - drag.x0, dy = e.clientY - drag.y0;
+    if (!drag.mode) {
+      if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return;
+      if (Math.abs(dy) > Math.abs(dx)) { drag = null; return; }               // she is scrolling the page
+      if (dx < 0 && cur < N - 1) { drag.mode = 'next'; drag.pg = pageEls[cur]; }
+      else if (dx > 0 && cur > 0) { drag.mode = 'prev'; drag.pg = pageEls[cur - 1]; drag.pg.classList.remove('is-hidden'); }
+      else { drag = null; return; }
+      drag.pg.classList.add('is-dragging', 'is-turning'); try { book.setPointerCapture(e.pointerId); } catch {}
+    }
+    drag.dx = dx;
+    const w = book.clientWidth, k = Math.max(0, Math.min(1, Math.abs(dx) / (w * 0.9)));
+    const ang = drag.mode === 'next' ? -180 * k * 0.92 : -180 + 180 * k * 0.92;
+    drag.pg.style.transform = RM ? '' : `rotateY(${ang}deg)`;
+    if (RM) drag.pg.style.opacity = drag.mode === 'next' ? String(1 - k) : String(k);
+  });
+  const endDrag = async e => {
+    if (!drag || e.pointerId !== drag.id) return;
+    const d = drag; drag = null;
+    if (!d.mode) return;
+    const w = book.clientWidth, commit = Math.abs(d.dx) > w * 0.22;
+    d.pg.classList.remove('is-dragging'); d.pg.classList.add('is-settling'); d.pg.style.transform = ''; d.pg.style.opacity = '';
+    busy = true;
+    if (commit) {
+      ctx.audio.sfx('page');
+      if (d.mode === 'next') { d.pg.classList.add('is-turned'); cur++; } else { d.pg.classList.remove('is-turned'); cur--; }
+      sync();
+    } else if (d.mode === 'prev') { d.pg.classList.add('is-turned'); }
+    await wait(650);
+    d.pg.classList.remove('is-settling', 'is-turning');
+    if (d.pg.classList.contains('is-turned')) d.pg.classList.add('is-hidden');
+    busy = false;
+  };
+  book.addEventListener('pointerup', endDrag); book.addEventListener('pointercancel', endDrag);
   const onKey = e => { if (e.target.closest('#menu')) return; if (e.key === 'ArrowRight' || e.key === 'PageDown') next(); else if (e.key === 'ArrowLeft' || e.key === 'PageUp') prev(); };
 
   // ---------- discoveries ----------
@@ -112,6 +157,7 @@ export function createJournal(ctx) {
   const stickerFig = root.querySelector('.page__art--sticker');
   if (stickerFig) {
     const svg = stickerFig.querySelector('svg'); const wrap = el('div', 'sticker'); svg.replaceWith(wrap); wrap.appendChild(svg); stickerFig.style.position = 'relative';
+    const under = PAGES.find(p => p.art === 'sticker').under; if (under) stickerFig.appendChild(el('div', 'sticker__under', under));
     let taps = 0;
     on('.page__art--sticker', () => {
       taps++; wrap.classList.toggle('is-peeled'); ctx.audio.sfx('sticker');
@@ -119,6 +165,16 @@ export function createJournal(ctx) {
     });
   }
   on('.page__art--bubbles', n => { n.classList.toggle('is-real'); ctx.audio.sfx('tick'); });
+  on('.page__art--leaf', n => { n.classList.add('is-lifted'); ctx.audio.sfx('flutter'); setTimeout(() => n.classList.remove('is-lifted'), 1500); });
+  // margin notes
+  root.querySelectorAll('.page__corner').forEach(c => c.addEventListener('click', e => { e.stopPropagation(); const pg = c.closest('.page'); const open = pg.classList.toggle('is-noted'); c.setAttribute('aria-expanded', String(open)); ctx.audio.sfx(open ? 'paper' : 'tick'); }));
+  // the ink lily draws itself when its page is in view
+  const ink = root.querySelector('.page__art--inklily');
+  if (ink) {
+    const paths = [...ink.querySelectorAll('.ink__s')]; let acc = 0;
+    paths.forEach(pth => { const L = pth.getTotalLength ? pth.getTotalLength() : 600; pth.style.setProperty('--len', L); const dur = Math.min(1.6, 0.25 + L / 420); pth.style.setProperty('--dur', dur + 's'); pth.style.setProperty('--delay', acc + 's'); acc += dur * 0.55; });
+    ink.dataset.total = acc;
+  }
   on('.page__art--notes', n => {
     n.classList.add('is-on'); ctx.audio.sfx('tick');
     const body = n.closest('.page__inner').querySelector('.page__body'); const last = body.querySelector('p:last-child');
@@ -127,7 +183,12 @@ export function createJournal(ctx) {
   });
   const outfits = root.querySelector('.page__art--outfits'); if (outfits) { outfits.dataset.outfit = '0'; on('.page__art--outfits', n => { n.dataset.outfit = String((+n.dataset.outfit + 1) % 3); ctx.audio.sfx('paper'); }); }
   on('.page__art--tag', n => { if (n.classList.contains('is-untagged')) return; n.classList.add('is-untagged'); ctx.audio.sfx('flutter'); setTimeout(() => ctx.audio.sfx('chime'), 1000); });
-  on('.cat', n => { n.classList.remove('is-purring'); void n.getBoundingClientRect(); n.classList.add('is-purring'); ctx.audio.sfx('purr'); setTimeout(() => n.classList.remove('is-purring'), 1700); });
+  let catTaps = 0;
+  on('.cat', n => {
+    n.classList.remove('is-purring', 'is-curious'); void n.getBoundingClientRect();
+    if (catTaps++ % 3 === 2) { n.classList.add('is-curious'); ctx.audio.sfx('tick'); setTimeout(() => n.classList.remove('is-curious'), 1100); }
+    else { n.classList.add('is-purring'); ctx.audio.sfx('purr'); setTimeout(() => n.classList.remove('is-purring'), 1700); }
+  });
   on('.bowl', n => { n.classList.remove('is-crunch'); void n.getBoundingClientRect(); n.classList.add('is-crunch'); ctx.audio.sfx('crunch'); setTimeout(() => n.classList.remove('is-crunch'), 700); });
   on('.dumpling', n => { n.classList.remove('is-steam'); void n.getBoundingClientRect(); n.classList.add('is-steam'); ctx.audio.sfx('tick'); setTimeout(() => n.classList.remove('is-steam'), 1900); });
   on('.page__art--headphones', n => {
@@ -150,8 +211,11 @@ export function createJournal(ctx) {
       s.style.setProperty('--x0', (Math.random() * 80 - 40) + 'px'); s.style.setProperty('--x1', (Math.random() * 160 - 80) + 'px'); s.style.setProperty('--y1', -(60 + Math.random() * 120) + 'px');
       s.style.setProperty('--d', (0.3 + Math.random() * 2.2) + 's'); s.style.fontSize = (12 + Math.random() * 12) + 'px'; pl.appendChild(s); setTimeout(() => s.remove(), 6000);
     }
-    setTimeout(() => { pl.classList.add('is-alive'); finaleText.classList.add('is-in'); }, RM ? 1200 : 3600);
-    setTimeout(() => { const inner = pl.closest('.page__inner'); inner.scrollTo({ top: Math.max(0, finaleText.offsetTop - 40), behavior: RM ? 'auto' : 'smooth' }); }, RM ? 1800 : 4600);
+    const W = [...finaleText.querySelectorAll('.w')]; W.forEach((w, i) => w.style.setProperty('--d', (i * 0.085) + 's'));
+    const settle = RM ? 1200 : 4600;                       // the petals finish opening around 4.4s
+    setTimeout(() => { pl.classList.add('is-alive'); }, settle);
+    setTimeout(() => { finaleText.classList.add('is-in'); if (!RM) ctx.audio.sfx('paper'); }, settle + (RM ? 300 : 900));
+    setTimeout(() => { const inner = pl.closest('.page__inner'); inner.scrollTo({ top: Math.max(0, finaleText.offsetTop - 24), behavior: RM ? 'auto' : 'smooth' }); }, settle + (RM ? 600 : 1600));
   }
   if (pl) { pl.addEventListener('click', bloomLily); pl.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); bloomLily(); } }); }
   root.querySelectorAll('.finale__btn').forEach(b => b.addEventListener('click', () => {

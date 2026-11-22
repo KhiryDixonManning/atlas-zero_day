@@ -29,6 +29,7 @@
 .env.is-opened .env__flap{transform:translateZ(3px) rotateX(-176deg)}
 .env__flap .flap-face{position:absolute;inset:0;clip-path:polygon(0 0,100% 0,50% 100%);backface-visibility:hidden;-webkit-backface-visibility:hidden}
 .env__flap .flap-face--front{background:linear-gradient(180deg,#eadcc0 0%,#dfd0b1 70%,#d2c3a3 100%);box-shadow:inset 0 -2px 3px rgba(0,0,0,.08)}
+.env__flap .flap-face::after,.env__flap .flap-face *{backface-visibility:hidden;-webkit-backface-visibility:hidden}
 .env__flap .flap-face--front::after{content:"";position:absolute;inset:0;background-image:var(--grain);opacity:.45;mix-blend-mode:multiply}
 .env__flap .flap-face--back{transform:rotateX(180deg);background:linear-gradient(0deg,#e2d5b8,#d3c4a4)}
 .env__flap-shadow{position:absolute;left:0;right:0;top:58%;height:42%;pointer-events:none;background:linear-gradient(180deg,rgba(0,0,0,.18),transparent 70%);clip-path:polygon(0 -100%,100% -100%,50% 0);opacity:1;transition:opacity 1.2s}
@@ -57,6 +58,7 @@
 .letter__p{position:absolute;left:0;right:0;height:var(--ph);transform-style:preserve-3d}
 .letter__p .front{position:absolute;inset:0;overflow:hidden;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:linear-gradient(180deg,#f4ecd8,#ecdfc5);
   padding:calc(var(--lw) * .06) calc(var(--lw) * .085);font-family:var(--hand);font-weight:500;font-size:calc(var(--lw) * .062);line-height:1.32;color:#2b2a36;white-space:nowrap}
+.letter__p .front *,.letter__p .front::before,.letter__p .back::before{backface-visibility:hidden;-webkit-backface-visibility:hidden}
 .letter__p .front::before{content:"";position:absolute;inset:0;background-image:var(--grain);opacity:.5;mix-blend-mode:multiply;pointer-events:none}
 .letter__p p{margin:0 0 .35em;position:relative}
 .letter__p .back{position:absolute;inset:0;background:linear-gradient(180deg,#e9dcc2,#e1d3b7);transform:rotateX(180deg);backface-visibility:hidden;-webkit-backface-visibility:hidden}
@@ -85,3 +87,10 @@
 }
 
 @media (orientation:landscape) and (max-height:520px){.env-stage,.letter-stage{padding:calc(var(--safe-top) + 46px) 16px calc(var(--safe-bottom) + 46px)}.garden .env-cue{bottom:calc(var(--safe-bottom) + 10px)}}
+
+/* while a panel unfolds, its text stays invisible until the panel has passed the halfway point */
+.letter.is-folding .letter__p--top .front,.letter.is-folding .letter__p--bot .front{visibility:hidden}
+.letter.is-open1 .letter__p--top .front{animation:front-show 1.5s steps(1,end) forwards}
+.letter.is-open2 .letter__p--bot .front{animation:front-show 1.4s steps(1,end) forwards}
+@keyframes front-show{0%{visibility:hidden}46%{visibility:visible}100%{visibility:visible}}
+@media (prefers-reduced-motion:reduce){.letter.is-open1 .letter__p--top .front,.letter.is-open2 .letter__p--bot .front{animation-duration:.6s}}
