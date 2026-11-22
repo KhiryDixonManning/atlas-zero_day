@@ -38,9 +38,9 @@ export function createJournal(ctx) {
         <p class="finale__caption">${p.caption || ''}</p>
         <div class="finale__text page__body">${p.closing.map(t => `<p>${words(t)}</p>`).join('')}<p class="finale__sign">${words(p.sign)}</p></div>
         <div class="finale__actions">
-          <button class="finale__btn" type="button" data-act="letter">read the letter again</button>
-          <button class="finale__btn" type="button" data-act="garden">back to the garden</button>
-          <button class="finale__btn" type="button" data-act="restart">start from the beginning</button>
+          <button class="finale__btn" type="button" data-act="letter">read it again</button>
+          <button class="finale__btn" type="button" data-act="garden">the garden</button>
+          <button class="finale__btn" type="button" data-act="restart">start over</button>
         </div>`;
     } else {
       const layout = ART_LAYOUT[p.art] || 'wide';
@@ -213,9 +213,13 @@ export function createJournal(ctx) {
     }
     const W = [...finaleText.querySelectorAll('.w')]; W.forEach((w, i) => w.style.setProperty('--d', (i * 0.085) + 's'));
     const settle = RM ? 1200 : 4600;                       // the petals finish opening around 4.4s
-    setTimeout(() => { pl.classList.add('is-alive'); }, settle);
+    setTimeout(() => { pl.classList.add('is-alive'); pl.closest('.page').classList.add('is-bloomed'); }, settle);
     setTimeout(() => { finaleText.classList.add('is-in'); if (!RM) ctx.audio.sfx('paper'); }, settle + (RM ? 300 : 900));
-    setTimeout(() => { const inner = pl.closest('.page__inner'); inner.scrollTo({ top: Math.max(0, finaleText.offsetTop - 24), behavior: RM ? 'auto' : 'smooth' }); }, settle + (RM ? 600 : 1600));
+    setTimeout(() => {
+      // only scroll if the signature would otherwise sit below the page edge, and then gently
+      const inner = pl.closest('.page__inner'); const need = finaleText.offsetTop + finaleText.offsetHeight + 60 - inner.clientHeight;
+      if (need > 0) inner.scrollTo({ top: Math.min(need, finaleText.offsetTop - 16), behavior: RM ? 'auto' : 'smooth' });
+    }, settle + (RM ? 600 : 2400));
   }
   if (pl) { pl.addEventListener('click', bloomLily); pl.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); bloomLily(); } }); }
   root.querySelectorAll('.finale__btn').forEach(b => b.addEventListener('click', () => {
@@ -225,14 +229,15 @@ export function createJournal(ctx) {
 
   return {
     el: root,
-    async enter({ page = 0 } = {}) {
+    async enter({ page = 0, resume } = {}) {
       show(page < 0 ? N - 1 : page, { animate: false });
+      book.classList.add('is-arriving'); requestAnimationFrame(() => requestAnimationFrame(() => book.classList.remove('is-arriving')));
       document.addEventListener('keydown', onKey); window.addEventListener('resize', onResize);
       requestAnimationFrame(onResize);
       // a tiny settle: the page beneath the letter is the same note, so nothing jumps
     },
     back() { if (cur > 0) { prev(); return true; } return false; },
-    replay() { if (cur === N - 1 && bloomed) { bloomed = false; pl.classList.remove('is-blooming', 'is-alive'); finaleText.classList.remove('is-in'); pl.closest('.page__inner').scrollTo({ top: 0 }); } else jump(0); },
+    replay() { if (cur === N - 1 && bloomed) { bloomed = false; pl.classList.remove('is-blooming', 'is-alive'); pl.closest('.page').classList.remove('is-bloomed'); finaleText.classList.remove('is-in'); pl.closest('.page__inner').scrollTo({ top: 0 }); } else jump(0); },
     async exit({ reveal }) { reveal(); await wait(100); },
     destroy() { document.removeEventListener('keydown', onKey); window.removeEventListener('resize', onResize); },
   };

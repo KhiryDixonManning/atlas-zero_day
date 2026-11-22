@@ -2,7 +2,7 @@
 // lit by a moon high on the right. Built from a few measured shapes rather than many gradients.
 const { cos, sin, PI, atan2, sqrt } = Math;
 // front cap: circle centre F, radius RF, flat base at BASE. back cap: centre B, radius RB (perspective: smaller).
-const F = [150, 214], RF = 92, B = [284, 178], RB = 72, BASE_F = 312, BASE_B = 256;
+const F = [150, 150], RF = 92, B = [284, 114], RB = 72, BASE_F = 248, BASE_B = 192;
 export const MB_VIEW = { w: 400, h: 600 };
 export const MB_FRONT = { cx: F[0], cy: F[1], r: RF, base: BASE_F };   // where the door lives, in viewBox units
 const f1 = n => n.toFixed(1);
@@ -24,7 +24,7 @@ export function mailboxSVG() {
   let rivets = '';
   for (let i = 0; i <= 12; i++) { const a = PI + i * PI / 12, x = F[0] + (RF - 5) * cos(a), y = F[1] + (RF - 5) * sin(a); rivets += `<circle cx="${f1(x)}" cy="${f1(y)}" r="1.6" fill="rgba(255,236,214,${(0.25 + 0.5 * Math.max(0, cos(a + 0.9))).toFixed(2)})"/>`; }
   let grain = '';
-  for (let i = 0; i < 9; i++) { const x = 130 + i * 5.4; grain += `<path d="M${x} 318 C ${x + 2} 400, ${x - 2} 480, ${x + 1} 600" stroke="rgba(0,0,0,${(0.12 + (i % 3) * 0.08).toFixed(2)})" stroke-width="${(0.6 + (i % 2) * 0.6).toFixed(1)}" fill="none"/>`; }
+  for (let i = 0; i < 9; i++) { const x = 130 + i * 5.4; grain += `<path d="M${x} 254 C ${x + 2} 360, ${x - 2} 470, ${x + 1} 600" stroke="rgba(0,0,0,${(0.12 + (i % 3) * 0.08).toFixed(2)})" stroke-width="${(0.6 + (i % 2) * 0.6).toFixed(1)}" fill="none"/>`; }
   return `<svg class="mb__svg" viewBox="0 0 ${MB_VIEW.w} ${MB_VIEW.h}" aria-hidden="true">
   <defs>
     <linearGradient id="mbTube" gradientUnits="userSpaceOnUse" x1="${f1(T.fTop[0])}" y1="${f1(T.fTop[1])}" x2="${f1(T.fTop[0] + 30)}" y2="${BASE_F}">
@@ -45,12 +45,12 @@ export function mailboxSVG() {
   <ellipse cx="168" cy="586" rx="118" ry="11" fill="rgba(0,0,0,.55)"/>
   <ellipse cx="112" cy="584" rx="150" ry="9" fill="rgba(0,0,0,.28)"/>
   <!-- post -->
-  <rect x="128" y="318" width="52" height="282" fill="url(#mbPost)"/>${grain}
-  <rect x="128" y="318" width="52" height="30" fill="rgba(0,0,0,.45)"/>
-  <rect x="174" y="318" width="6" height="282" fill="rgba(255,226,200,.08)"/>
+  <rect x="128" y="254" width="52" height="346" fill="url(#mbPost)"/>${grain}
+  <rect x="128" y="254" width="52" height="30" fill="rgba(0,0,0,.45)"/>
+  <rect x="174" y="254" width="6" height="346" fill="rgba(255,226,200,.08)"/>
   <!-- bracket arm under the box -->
-  <path d="M116 306 L246 306 L246 322 L116 322 Z" fill="url(#mbBracket)"/>
-  <path d="M180 366 L236 318 L244 322 L186 372 Z" fill="#3a271a"/><path d="M180 366 L236 318" stroke="rgba(255,226,200,.12)" stroke-width="1"/>
+  <path d="M116 242 L246 242 L246 258 L116 258 Z" fill="url(#mbBracket)"/>
+  <path d="M180 302 L236 254 L244 258 L186 308 Z" fill="#3a271a"/><path d="M180 302 L236 254" stroke="rgba(255,226,200,.12)" stroke-width="1"/>
   <!-- the tube -->
   <path d="${body}" fill="url(#mbTube)"/>
   <path d="${body}" fill="url(#mbFar)"/>
@@ -66,7 +66,7 @@ export function mailboxSVG() {
     <path d="M${f1(T.fTop[0] + 6)} ${f1(T.fTop[1] + 2)} L${f1(T.bTop[0] + 2)} ${f1(T.bTop[1] + 2)}" stroke="rgba(255,240,226,.18)" stroke-width="12" stroke-linecap="round"/>
   </g>
   <!-- nameplate on the right wall, skewed with it -->
-  <g transform="translate(262 236) skewY(${f1(atan2(wallSkew, 1) * 180 / PI)})">
+  <g transform="translate(262 172) skewY(${f1(atan2(wallSkew, 1) * 180 / PI)})">
     <rect x="-20" y="-13" width="56" height="26" rx="2.5" fill="url(#mbBrass)" stroke="#2b1c0a" stroke-width=".8"/>
     <rect x="-17" y="-10" width="50" height="20" rx="1.5" fill="none" stroke="rgba(60,40,10,.45)" stroke-width=".6"/>
     <text x="8" y="4.5" text-anchor="middle" font-family="'Cormorant Garamond',Georgia,serif" font-weight="600" font-size="13" letter-spacing="2.4" fill="#2a1a08">LILY</text>

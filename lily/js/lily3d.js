@@ -87,15 +87,15 @@ export function lilyHead({ seed = 1, open = 1, yaw = 0, pitch = 0, roll = 0, siz
   }
   // the throat: a soft green-gold glow at the centre, drawn between the back and front petals
   const centre = proj(R([0, 0, 0.05]));
-  items.push({ depth: 0.02, defs: `<radialGradient id="${id}t"><stop offset="0" stop-color="rgba(214,222,140,${(0.55 * o).toFixed(2)})"/><stop offset="1" stop-color="rgba(214,222,140,0)"/></radialGradient>`, body: `<circle cx="${centre[0].toFixed(1)}" cy="${centre[1].toFixed(1)}" r="${(size * 0.3).toFixed(1)}" fill="url(#${id}t)"/>` });
+  items.push({ depth: 0.02, defs: `<radialGradient id="${id}t"><stop offset="0" stop-color="rgba(214,222,140,${(0.3 * o).toFixed(2)})"/><stop offset="1" stop-color="rgba(214,222,140,0)"/></radialGradient>`, body: `<circle cx="${centre[0].toFixed(1)}" cy="${centre[1].toFixed(1)}" r="${(size * 0.2).toFixed(1)}" fill="url(#${id}t)"/>` });
   items.sort((a, b) => a.depth - b.depth);
   return { defs: items.map(it => it.defs || '').join(''), body: items.map(it => it.body).join('') };
 }
 
 /** A whole plant: tapered stem, leaves, one or two heads. Returns an <svg> string sized W×H (px units in viewBox). */
-export function lilyPlant({ seed = 1, W = 220, H = 360, heads = [{ open: 1 }], lean = 0, dim = 0, leafCount = 5 } = {}) {
+export function lilyPlant({ seed = 1, W = 220, H = 360, heads = [{ open: 1 }], lean = 0, dim = 0, leafCount = 5, tall = 0.7 } = {}) {
   const r = k => hash(seed, k, 91);
-  const x0 = W * 0.5 + lean * 0.2, y0 = H, x1 = W * 0.5 + lean, y1 = H * 0.3;
+  const x0 = W * 0.5 + lean * 0.2, y0 = H, x1 = W * 0.5 + lean, y1 = H * (1 - tall);
   const c1 = [x0 + (r(1) - 0.5) * 60, H * 0.7], c2 = [x1 - (r(2) - 0.5) * 70, H * 0.45];
   const bez = t => { const u = 1 - t; return [u * u * u * x0 + 3 * u * u * t * c1[0] + 3 * u * t * t * c2[0] + t * t * t * x1, u * u * u * y0 + 3 * u * u * t * c1[1] + 3 * u * t * t * c2[1] + t * t * t * y1]; };
   const tan = t => { const a = bez(min(1, t + 0.01)), b = bez(max(0, t - 0.01)); const d = [a[0] - b[0], a[1] - b[1]], l = sqrt(d[0] * d[0] + d[1] * d[1]) || 1; return [d[0] / l, d[1] / l]; };
@@ -131,7 +131,7 @@ export function lilyPlant({ seed = 1, W = 220, H = 360, heads = [{ open: 1 }], l
     // a short pedicel from the stem to the head
     const hx = p[0] + (hd.dx || 0) * (W / 220), hy = p[1] + (hd.dy || 0) * (W / 220);
     const ped = hd.t != null && hd.t < 1 ? `<path d="M${p[0].toFixed(1)} ${p[1].toFixed(1)} Q ${((p[0] + hx) / 2 + 8).toFixed(1)} ${((p[1] + hy) / 2).toFixed(1)} ${hx.toFixed(1)} ${hy.toFixed(1)}" fill="none" stroke="#3f6a3c" stroke-width="${(2.6 * W / 220).toFixed(1)}" stroke-linecap="round"/>` : '';
-    headsSvg += `${ped}<g class="lily__head" transform="translate(${hx.toFixed(1)} ${hy.toFixed(1)})">${h.body}</g>`;
+    headsSvg += `${ped}<g transform="translate(${hx.toFixed(1)} ${hy.toFixed(1)})"><g class="lily__head">${h.body}</g></g>`;
   });
   return `<svg class="lily" viewBox="0 0 ${W} ${H}" aria-hidden="true"><defs>${defs}</defs>${back}${stem}${front}${headsSvg}</svg>`;
 }
