@@ -199,10 +199,10 @@ export const JOURNAL_ART = {
       <text class="cat__purr" x="100" y="70" font-family="Caveat,cursive" font-size="15" fill="${INK}" opacity="0">prrr</text>
       <text class="cat__mrrp" x="100" y="70" font-family="Caveat,cursive" font-size="15" fill="${INK}" opacity="0">mrrp?</text>
     </g>
-    <g class="bowl"><!-- a bowl of cereal -->
-      <ellipse cx="190" cy="98" rx="46" ry="12" fill="#f5efe0" stroke="${INK}" stroke-width="1.2"/>
+    <g class="bowl" transform="translate(-10 14)"><!-- a bowl of cereal at the cat's feet -->
       <path d="M146 100 C 150 128, 230 128, 234 100" fill="#dfe5d8" stroke="${INK}" stroke-width="1.3"/>
-      ${[[160, 93], [174, 90], [190, 92], [206, 90], [220, 94], [182, 96], [198, 97]].map(([x, y], i) => `<rect class="bowl__sq" x="${x - 6}" y="${y - 6}" width="12" height="12" rx="2" transform="rotate(${(i * 37) % 40 - 20} ${x} ${y})" fill="#d9a35e" stroke="#8a5a2a" stroke-width="1"/>`).join('')}
+      <ellipse cx="190" cy="98" rx="46" ry="12" fill="#f5efe0" stroke="${INK}" stroke-width="1.2"/>
+      ${[[160, 96], [173, 92], [188, 94], [204, 91], [218, 96], [181, 100], [197, 101]].map(([x, y], i) => `<rect class="bowl__sq" x="${x - 6}" y="${y - 6}" width="12" height="12" rx="2" style="--r:${(i * 37) % 40 - 20}deg" fill="#d9a35e" stroke="#8a5a2a" stroke-width="1"/>`).join('')}
       <path class="bowl__steam" d="M176 76 q -4 -8 0 -16 M190 72 q 4 -8 0 -16 M204 76 q -4 -8 0 -16" fill="none" stroke="${INK}" stroke-width="1.2" stroke-linecap="round" opacity="0"/>
     </g>
     <g class="dumpling" transform="translate(150 26)"><!-- three dumplings on a plate -->
@@ -219,14 +219,17 @@ export const JOURNAL_ART = {
     <g class="hp__notes" transform="translate(90 72)"></g>
   </svg>`,
   bench: () => `<svg viewBox="0 0 220 120" aria-hidden="true">
-    <circle cx="34" cy="20" r="10" fill="#f3ead9" stroke="${INK}" stroke-width="1" opacity=".9"/>
-    <path d="M26 58 H194 M30 72 H190 M34 86 H186" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>
-    <path d="M40 58 L40 110 M180 58 L180 110 M34 110 H48 M172 110 H188" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>
-    <path d="M26 58 C 20 44, 30 34, 44 36 M194 58 C 200 44, 190 34, 176 36" fill="none" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>
-    <g transform="translate(78 44)"><path d="M0 10 C 0 2, 22 2, 22 10 L 20 20 L 2 20 Z" fill="#f5efe0" stroke="${INK}" stroke-width="1.2"/><path d="M22 10 q 8 0 6 8 q -1 3 -6 2" fill="none" stroke="${INK}" stroke-width="1.2"/></g>
-    <g transform="translate(118 44)"><path d="M0 10 C 0 2, 22 2, 22 10 L 20 20 L 2 20 Z" fill="#f5efe0" stroke="${INK}" stroke-width="1.2"/><path d="M22 10 q 8 0 6 8 q -1 3 -6 2" fill="none" stroke="${INK}" stroke-width="1.2"/></g>
-    <g class="bench__fly"><circle cx="150" cy="34" r="2.2" fill="#d9e38f"/></g>
-    ${[20, 60, 100, 140, 190].map((x, i) => `<path d="M${x} 114 q 4 -10 8 0" fill="none" stroke="${INK}" stroke-width="1" opacity=".5"/>`).join('')}
+    <circle cx="196" cy="18" r="9" fill="#f3ead9" stroke="${INK}" stroke-width="1" opacity=".9"/>
+    <!-- a park bench: two back rails, a seat, legs and curled arms -->
+    <path d="M30 44 H190 M30 56 H190" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>
+    <path d="M24 78 H196" stroke="${INK}" stroke-width="5" stroke-linecap="round"/>
+    <path d="M36 44 V110 M184 44 V110 M28 110 H44 M176 110 H192" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>
+    <path d="M24 78 C 14 72, 14 60, 24 58 M196 78 C 206 72, 206 60, 196 58" fill="none" stroke="${INK}" stroke-width="3" stroke-linecap="round"/>
+    <!-- two mugs, side by side on the seat -->
+    <g transform="translate(84 58)"><path d="M0 2 H22 V18 C 22 21, 19 22, 16 22 H6 C 3 22, 0 21, 0 18 Z" fill="#f5efe0" stroke="${INK}" stroke-width="1.2"/><path d="M22 7 q 7 0 6 6 q -1 4 -6 4" fill="none" stroke="${INK}" stroke-width="1.2"/><path d="M6 -4 q -3 -5 0 -10 M14 -3 q 3 -5 0 -10" fill="none" stroke="${INK}" stroke-width="1" stroke-linecap="round" opacity=".55"/></g>
+    <g transform="translate(116 58)"><path d="M0 2 H22 V18 C 22 21, 19 22, 16 22 H6 C 3 22, 0 21, 0 18 Z" fill="#f5efe0" stroke="${INK}" stroke-width="1.2"/><path d="M22 7 q 7 0 6 6 q -1 4 -6 4" fill="none" stroke="${INK}" stroke-width="1.2"/><path d="M7 -4 q 3 -5 0 -10 M15 -3 q -3 -5 0 -10" fill="none" stroke="${INK}" stroke-width="1" stroke-linecap="round" opacity=".55"/></g>
+    <g class="bench__fly"><circle cx="158" cy="30" r="2.2" fill="#d9e38f"/></g>
+    ${[14, 60, 106, 150, 200].map(x => `<path d="M${x} 114 q 4 -10 8 0" fill="none" stroke="${INK}" stroke-width="1" opacity=".5"/>`).join('')}
   </svg>`,
 };
 
