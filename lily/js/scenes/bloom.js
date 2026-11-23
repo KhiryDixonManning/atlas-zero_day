@@ -329,7 +329,7 @@ export function createBloom(ctx) {
   }
 
   // ---------- input ----------
-  function onDown(e) { pointer.down = true; pointer.x = pointer.lx = e.clientX; pointer.y = pointer.ly = e.clientY; pointer.px = e.clientX; pointer.py = e.clientY; pointer.moved = 0; root.setPointerCapture && root.setPointerCapture(e.pointerId); }
+  function onDown(e) { pointer.down = true; pointer.x = pointer.lx = e.clientX; pointer.y = pointer.ly = e.clientY; pointer.px = e.clientX; pointer.py = e.clientY; pointer.moved = 0; try { root.setPointerCapture(e.pointerId); } catch { /* not every pointer can be captured */ } }
   function onMove(e) { if (!pointer.down) return; pointer.x = e.clientX; pointer.y = e.clientY; pointer.moved += abs(e.clientX - pointer.px) + abs(e.clientY - pointer.py); pointer.px = e.clientX; pointer.py = e.clientY; }
   function onUp() {
     if (!pointer.down) return; pointer.down = false; pointer.x = pointer.y = -1e4;

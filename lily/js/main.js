@@ -33,12 +33,14 @@ function save() {
   try { sessionStorage.setItem(STORE_KEY, JSON.stringify({ progress: state.progress, letterRead: state.letterRead, page: state.page })); } catch { /* ignore */ }
 }
 
+function setHash(h) { try { history.replaceState(null, '', h); } catch { /* Safari rate-limits replaceState; the hash is a convenience */ } }
+
 // ---------- scene context handed to every scene ----------
 const ctx = {
   audio,
   reduced: reduced(),
   go: (name, opts) => go(name, opts),
-  setPage: p => { state.page = p; save(); history.replaceState(null, '', `#/journal/${p}`); },
+  setPage: p => { state.page = p; save(); setHash(`#/journal/${p}`); },
   markLetterRead: () => { state.letterRead = true; save(); refreshMenu(); },
   restart: () => { state.progress = 0; state.page = 0; save(); go('bloom', { quick: true }); },
 };
@@ -76,7 +78,7 @@ async function goInner(name, opts) {
   if (idx > state.progress) state.progress = idx;
   if (name === 'journal' && opts.page != null) state.page = opts.page;
   save();
-  history.replaceState(null, '', name === 'journal' ? `#/journal/${state.page}` : `#/${opts.sub || name}`);
+  setHash(name === 'journal' ? `#/journal/${state.page}` : `#/${opts.sub || name}`);
 
   state.current = { name, api, el: node };
   updateNav(name);
