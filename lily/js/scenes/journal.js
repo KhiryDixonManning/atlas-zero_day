@@ -84,28 +84,39 @@ export function createJournal(ctx) {
     arrive();
     requestAnimationFrame(() => trackScroll(pageEls[cur]));
   }
+  // the busy flag never outlives a turn: it is cleared in finally, and by a timer if a frame never comes
+  let busyTimer = 0;
+  function hold() { busy = true; clearTimeout(busyTimer); busyTimer = setTimeout(() => { busy = false; show(cur); }, 4000); }
+  function release() { busy = false; clearTimeout(busyTimer); }
   async function next() {
-    if (busy || cur >= N - 1) return; busy = true;
-    const pg = pageEls[cur]; pg.classList.add('is-turning', 'is-turned'); ctx.audio.sfx('page');
-    cur++; sync();
-    await wait(RM ? 700 : 1150);
-    pg.classList.remove('is-turning'); pg.classList.add('is-hidden'); busy = false;
+    if (busy || cur >= N - 1) return; hold();
+    try {
+      const pg = pageEls[cur]; pg.classList.add('is-turning', 'is-turned'); ctx.audio.sfx('page');
+      cur++; sync();
+      await wait(RM ? 700 : 1150);
+      pg.classList.remove('is-turning'); pg.classList.add('is-hidden');
+    } finally { release(); }
   }
   async function prev() {
-    if (busy || cur <= 0) return; busy = true;
-    const pg = pageEls[cur - 1]; pg.classList.remove('is-hidden'); pg.classList.add('is-turning');
-    await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
-    pg.classList.remove('is-turned'); ctx.audio.sfx('page');
-    cur--; sync();
-    await wait(RM ? 700 : 1150);
-    pg.classList.remove('is-turning'); busy = false;
+    if (busy || cur <= 0) return; hold();
+    try {
+      const pg = pageEls[cur - 1]; pg.classList.remove('is-hidden'); pg.classList.add('is-turning');
+      await new Promise(r => requestAnimationFrame(() => requestAnimationFrame(r)));
+      pg.classList.remove('is-turned'); ctx.audio.sfx('page');
+      cur--; sync();
+      await wait(RM ? 700 : 1150);
+      pg.classList.remove('is-turning');
+    } finally { release(); }
   }
   async function jump(n) {
     if (busy || n === cur) return;
     if (Math.abs(n - cur) === 1) return n > cur ? next() : prev();
-    busy = true; book.classList.add('is-jumping'); ctx.audio.sfx('page');
-    await wait(480); show(n); await new Promise(r => requestAnimationFrame(r));
-    book.classList.remove('is-jumping'); await wait(480); busy = false;
+    hold();
+    try {
+      book.classList.add('is-jumping'); ctx.audio.sfx('page');
+      await wait(480); show(n); await new Promise(r => requestAnimationFrame(r));
+      book.classList.remove('is-jumping'); await wait(480);
+    } finally { release(); }
   }
   prevB.addEventListener('click', prev); nextB.addEventListener('click', next);
   // drag to turn: the page follows her finger, then completes or settles back
@@ -137,16 +148,17 @@ export function createJournal(ctx) {
     if (!d.mode) return;
     const w = book.clientWidth, commit = Math.abs(d.dx) > w * 0.22;
     d.pg.classList.remove('is-dragging'); d.pg.classList.add('is-settling'); d.pg.style.transform = ''; d.pg.style.opacity = '';
-    busy = true;
-    if (commit) {
-      ctx.audio.sfx('page');
-      if (d.mode === 'next') { d.pg.classList.add('is-turned'); cur++; } else { d.pg.classList.remove('is-turned'); cur--; }
-      sync();
-    } else if (d.mode === 'prev') { d.pg.classList.add('is-turned'); }
-    await wait(650);
-    d.pg.classList.remove('is-settling', 'is-turning');
-    if (d.pg.classList.contains('is-turned')) d.pg.classList.add('is-hidden');
-    busy = false;
+    hold();
+    try {
+      if (commit) {
+        ctx.audio.sfx('page');
+        if (d.mode === 'next') { d.pg.classList.add('is-turned'); cur++; } else { d.pg.classList.remove('is-turned'); cur--; }
+        sync();
+      } else if (d.mode === 'prev') { d.pg.classList.add('is-turned'); }
+      await wait(650);
+      d.pg.classList.remove('is-settling', 'is-turning');
+      if (d.pg.classList.contains('is-turned')) d.pg.classList.add('is-hidden');
+    } finally { release(); }
   };
   book.addEventListener('pointerup', endDrag); book.addEventListener('pointercancel', endDrag);
   const onKey = e => { if (e.target.closest('#menu')) return; if (e.key === 'ArrowRight' || e.key === 'PageDown') next(); else if (e.key === 'ArrowLeft' || e.key === 'PageUp') prev(); };
