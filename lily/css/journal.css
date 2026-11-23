@@ -46,8 +46,8 @@
 .journal__dot:focus-visible{outline-offset:6px}
 .journal__count{position:absolute;left:0;right:0;bottom:calc(var(--safe-bottom) + 64px);margin:0;text-align:center;font-family:var(--mono);font-size:10px;letter-spacing:.22em;color:rgba(243,234,217,.35);pointer-events:none}
 .book.is-jumping .page{transition:opacity .45s;opacity:0}
-.book{transition:opacity .9s var(--ease-out),transform .9s var(--ease-out)}
-.book.is-arriving{opacity:0;transform:translate(-50%,calc(-50% + 18px))}
+.book{transition:opacity .7s var(--ease-out),transform .7s var(--ease-out)}
+.book.is-arriving{opacity:.001;transform:translate(-50%,calc(-50% + 14px))}
 
 /* ---- discoveries ---- */
 .sticker{display:inline-block;width:100%;transform:rotate(-6deg);transition:transform .7s cubic-bezier(.34,1.56,.64,1),filter .7s;filter:drop-shadow(0 1px 1px rgba(0,0,0,.25))}

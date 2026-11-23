@@ -43,10 +43,24 @@ const ctx = {
   restart: () => { state.progress = 0; state.page = 0; save(); go('bloom', { quick: true }); },
 };
 
+let busyTimer = 0;
 async function go(name, opts = {}) {
   if (state.busy) return;
   if (!FACTORIES[name]) name = 'bloom';
   state.busy = true;
+  clearTimeout(busyTimer); busyTimer = setTimeout(() => { state.busy = false; ensureVisible(); }, 9000);   // nothing may hold navigation for long
+  try { await goInner(name, opts); }
+  catch (e) { console.error('scene change failed', e); }
+  finally { clearTimeout(busyTimer); state.busy = false; ensureVisible(); }
+}
+// if, for any reason, no scene is showing, show the current one
+function ensureVisible() {
+  const cur = state.current; if (!cur) return;
+  if (!cur.el.isConnected) stage.appendChild(cur.el);
+  cur.el.classList.add('is-in'); cur.el.style.pointerEvents = '';
+  for (const other of [...stage.querySelectorAll('.scene')]) if (other !== cur.el && !other.classList.contains('is-in')) { other.remove(); }
+}
+async function goInner(name, opts) {
   closeMenu();
   const prev = state.current;
   const api = FACTORIES[name](ctx);
@@ -81,7 +95,7 @@ async function go(name, opts = {}) {
   await api.enter({ ...opts, page: state.page, reveal });
   if (!prev) reveal();
   await leaving;
-  state.busy = false;
+  reveal();
 }
 
 // ---------- navigation ----------
@@ -139,7 +153,7 @@ document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu();
 // ---------- boot ----------
 load();
 (async () => {
-  try { await Promise.all([document.fonts.load('500 24px Caveat'), document.fonts.load('italic 400 24px "Cormorant Garamond"'), document.fonts.load('400 12px "IBM Plex Mono"')]); } catch { /* fonts are a nicety */ }
+  try { await Promise.race([Promise.all([document.fonts.load('500 24px Caveat'), document.fonts.load('italic 400 24px "Cormorant Garamond"'), document.fonts.load('400 12px "IBM Plex Mono"')]), wait(2500)]); } catch { /* fonts are a nicety */ }
   // deep links: only to places she has already reached in this session
   const m = location.hash.match(/^#\/(bloom|garden|envelope|journal|finale)(?:\/(\d+))?/);
   let start = 'bloom', opts = {};
@@ -151,6 +165,10 @@ load();
   boot.classList.add('is-gone');
   await go(start, opts);
 })();
+
+// last resort: an uncaught error must never leave the page dead
+window.addEventListener('error', () => { state.busy = false; ensureVisible(); });
+window.addEventListener('unhandledrejection', () => { state.busy = false; ensureVisible(); });
 
 // keep the audio quiet when she switches apps
 document.addEventListener('visibilitychange', () => audio.setHidden(document.hidden));

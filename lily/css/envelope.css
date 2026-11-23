@@ -1,6 +1,6 @@
 /* Scene 3 — the envelope and the letter */
 .env-stage{position:absolute;inset:0;z-index:10;display:grid;place-items:center;pointer-events:none;transition:opacity .6s ease;padding:calc(var(--safe-top) + 56px) 16px calc(var(--safe-bottom) + 80px)}
-.env{position:relative;width:min(86vw,420px);aspect-ratio:1.5;perspective:1400px;perspective-origin:50% 40%;pointer-events:none;cursor:pointer;-webkit-tap-highlight-color:transparent;
+.env{position:relative;width:min(86vw,420px);aspect-ratio:1.5;perspective:2600px;perspective-origin:50% 40%;pointer-events:none;cursor:pointer;-webkit-tap-highlight-color:transparent;
   opacity:0;visibility:hidden;transform-origin:50% 50%;will-change:transform;--near:0;--flap:0;--sink:0}
 .env.is-in{opacity:1;visibility:visible;pointer-events:auto}
 .env.is-held{animation:env-hold 5s ease-in-out infinite alternate}
