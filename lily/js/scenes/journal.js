@@ -71,6 +71,8 @@ export function createJournal(ctx) {
     for (let i = 0; i < N; i++) { const pg = pageEls[i]; const turned = i < n; pg.classList.toggle('is-turned', turned); pg.classList.toggle('is-hidden', turned); pg.classList.remove('is-turning'); }
     cur = n; sync();
   }
+  // only the page in view and the one beneath it are drawn; the rest cost nothing until needed
+  function trim() { for (let i = 0; i < N; i++) pageEls[i].classList.toggle('is-far', i > cur + 1); }
   function arrive() {
     pageEls.forEach((pg, i) => { if (i !== cur) pg.classList.remove('is-noted'); });
     if (ink && cur === 0) requestAnimationFrame(() => ink.classList.add('is-drawn'));
@@ -81,7 +83,7 @@ export function createJournal(ctx) {
     prevB.disabled = cur === 0; nextB.disabled = cur === N - 1;
     ctx.setPage(cur);
     pageEls[cur].querySelector('.page__inner').scrollTop = 0;
-    arrive();
+    arrive(); trim();
     requestAnimationFrame(() => trackScroll(pageEls[cur]));
   }
   // the busy flag never outlives a turn: it is cleared in finally, and by a timer if a frame never comes
@@ -91,7 +93,8 @@ export function createJournal(ctx) {
   async function next() {
     if (busy || cur >= N - 1) return; hold();
     try {
-      const pg = pageEls[cur]; pg.classList.add('is-turning', 'is-turned'); ctx.audio.sfx('page');
+      const pg = pageEls[cur]; if (pageEls[cur + 2]) pageEls[cur + 2].classList.remove('is-far');
+      pg.classList.add('is-turning', 'is-turned'); ctx.audio.sfx('page');
       cur++; sync();
       await wait(RM ? 700 : 1150);
       pg.classList.remove('is-turning'); pg.classList.add('is-hidden');
@@ -131,7 +134,7 @@ export function createJournal(ctx) {
     if (!drag.mode) {
       if (Math.abs(dx) < 10 && Math.abs(dy) < 10) return;
       if (Math.abs(dy) > Math.abs(dx)) { drag = null; return; }               // she is scrolling the page
-      if (dx < 0 && cur < N - 1) { drag.mode = 'next'; drag.pg = pageEls[cur]; }
+      if (dx < 0 && cur < N - 1) { drag.mode = 'next'; drag.pg = pageEls[cur]; if (pageEls[cur + 2]) pageEls[cur + 2].classList.remove('is-far'); }
       else if (dx > 0 && cur > 0) { drag.mode = 'prev'; drag.pg = pageEls[cur - 1]; drag.pg.classList.remove('is-hidden'); }
       else { drag = null; return; }
       drag.pg.classList.add('is-dragging', 'is-turning'); try { book.setPointerCapture(e.pointerId); } catch {}
