@@ -73,10 +73,10 @@
 .cat .cat__tail{transform-box:fill-box;transform-origin:0 100%}
 .cat.is-purring .cat__tail{animation:tail 1.6s ease-in-out}
 @keyframes tail{0%,100%{transform:rotate(0)}30%{transform:rotate(-12deg)}70%{transform:rotate(8deg)}}
-.bowl .bowl__sq{transform-box:fill-box;transform-origin:50% 50%}
+.bowl .bowl__sq{transform-box:fill-box;transform-origin:50% 50%;transform:rotate(var(--r,0deg))}
 .bowl.is-crunch .bowl__sq{animation:sq-hop .55s cubic-bezier(.3,1.5,.5,1)}
 .bowl.is-crunch .bowl__sq:nth-child(odd){animation-delay:.06s}
-@keyframes sq-hop{40%{transform:translateY(-9px) rotate(14deg)}}
+@keyframes sq-hop{40%{transform:translateY(-9px) rotate(calc(var(--r,0deg) + 14deg))}}
 .bowl__steam,.dumpling__steam{transform-box:fill-box;transform-origin:50% 100%}
 .dumpling.is-steam .dumpling__steam,.bowl.is-steam .bowl__steam{animation:steam 1.8s ease-out}
 @keyframes steam{0%{opacity:0;transform:translateY(6px) scale(.8)}25%{opacity:.6}100%{opacity:0;transform:translateY(-14px) scale(1.1)}}
