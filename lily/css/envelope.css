@@ -1,17 +1,16 @@
 /* Scene 3 — the envelope and the letter */
 .env-stage{position:absolute;inset:0;z-index:10;display:grid;place-items:center;pointer-events:none;transition:opacity .6s ease;padding:calc(var(--safe-top) + 56px) 16px calc(var(--safe-bottom) + 80px)}
 .env{position:relative;width:min(86vw,420px);aspect-ratio:1.5;perspective:2600px;perspective-origin:50% 40%;pointer-events:none;cursor:pointer;-webkit-tap-highlight-color:transparent;
-  opacity:0;visibility:hidden;transform-origin:50% 50%;will-change:transform;--near:0;--flap:0;--sink:0}
+  opacity:0;visibility:hidden;transform-origin:50% 50%;--near:0;--flap:0;--sink:0}
 .env.is-in{opacity:1;visibility:visible;pointer-events:auto}
 .env.is-held{animation:env-hold 5s ease-in-out infinite alternate}
 @keyframes env-hold{from{transform:rotateX(6deg) translateY(0)}to{transform:rotateX(4deg) translateY(-4px)}}
 .env.is-away{pointer-events:none;animation:none}
 /* the shadow it throws on the garden grows as it comes closer */
-.env__shadow{position:absolute;left:4%;right:4%;top:12%;bottom:-6%;border-radius:8px;background:rgba(0,0,0,.55);filter:blur(18px);transform:translateY(calc(10px + 26px * var(--near))) scale(calc(.9 + .12 * var(--near)));opacity:calc(.35 + .4 * var(--near));pointer-events:none}
+.env__shadow{position:absolute;left:-6%;right:-6%;top:4%;bottom:-16%;border-radius:50%;background:radial-gradient(ellipse at 50% 50%,rgba(0,0,0,.5) 30%,rgba(0,0,0,.25) 55%,transparent 72%);transform:translateY(calc(10px + 26px * var(--near))) scale(calc(.9 + .12 * var(--near)));opacity:calc(.35 + .4 * var(--near));pointer-events:none}
 .env__body{position:absolute;inset:0;transform-style:preserve-3d}
 .env__face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border-radius:3px;
   background:linear-gradient(205deg,#f3ebd6 0%,#e9dec3 60%,#dccfb0 100%);box-shadow:0 2px 3px rgba(0,0,0,.35),inset 0 -1px 0 rgba(90,70,40,.25),inset -1px 0 0 rgba(90,70,40,.18),inset 0 0 36px rgba(70,50,20,.09)}
-.env__face *,.env__face::before{backface-visibility:hidden;-webkit-backface-visibility:hidden}
 .env__face::before{content:"";position:absolute;inset:0;border-radius:3px;background-image:var(--grain);opacity:.5;pointer-events:none}
 .env__face--front{transform:translateZ(1px)}
 .env__dimmer{position:absolute;inset:0;border-radius:3px;background:rgba(8,5,3,.55);opacity:calc(.9 * (1 - var(--near)) + .85 * var(--sink));pointer-events:none;transform:translateZ(.5px)}
@@ -22,28 +21,27 @@
 .env__to .env__name{display:block;font-size:calc(var(--ew) * .17);font-weight:600;letter-spacing:.01em}
 .env__to .env__sub{display:block;margin-top:.3em;font-size:calc(var(--ew) * .036);color:#5a5870;font-family:var(--mono);letter-spacing:.14em;text-transform:lowercase}
 .env__line{position:absolute;left:12%;height:1px;background:rgba(43,42,54,.18)}
-.env__stamp{position:absolute;right:5.5%;top:6%;width:17%;transform:rotate(2deg);filter:drop-shadow(0 1px 1px rgba(0,0,0,.2))}
+.env__stamp{position:absolute;right:5.5%;top:6%;width:17%;transform:rotate(2deg)}
 .env__stamp svg{width:100%;display:block}
 .env__postmark{position:absolute;right:21%;top:7%;width:30%;transform:rotate(-12deg)}
 .env__postmark svg{width:100%;display:block}
 /* the small copy inside the mailbox scales the address with its own width */
 /* back: the back panel, the letter inside, the pocket of folded flaps, the top flap */
 .env__backpanel{position:absolute;inset:0;border-radius:3px;background:linear-gradient(180deg,#e4d7bb,#d9cbac);box-shadow:inset 0 0 40px rgba(60,40,10,.12)}
-.env__letter{position:absolute;left:6%;width:88%;top:13%;aspect-ratio:1/.46;transform:translateZ(1px);pointer-events:none;will-change:transform}
+.env__letter{position:absolute;left:6%;width:88%;top:13%;aspect-ratio:1/.46;transform:translateZ(1px);pointer-events:none}
 .env__letter-paper{position:absolute;inset:0;border-radius:2px;background:linear-gradient(200deg,#eadec5,#e1d3b7);box-shadow:0 1px 2px rgba(0,0,0,.25)}
 .env__letter-paper::before{content:"";position:absolute;inset:0;background-image:var(--grain);opacity:.45}
-.env__pocket{position:absolute;inset:0;transform:translateZ(2px);pointer-events:none;filter:drop-shadow(0 -1px 1px rgba(0,0,0,.15))}
+.env__pocket{position:absolute;inset:0;transform:translateZ(2px);pointer-events:none}
 .env__pocket-svg{width:100%;height:100%;display:block}
 .env__flap-shadow{position:absolute;left:0;right:0;top:0;height:60%;pointer-events:none;transform:translateZ(2.5px) translateY(5px);opacity:calc(1 - var(--flap))}
 .env__flap-shadow svg{width:100%;height:100%;display:block}
 /* the flap: a triangle hinged on the envelope's top edge; both faces share one clip so they are the same shape */
-.env__flap{position:absolute;left:0;right:0;top:0;height:56%;transform-origin:50% 0;transform-style:preserve-3d;will-change:transform;transform:translateZ(3px) rotateX(0)}
+.env__flap{position:absolute;left:0;right:0;top:0;height:56%;transform-origin:50% 0;transform-style:preserve-3d;transform:translateZ(3px) rotateX(0)}
 .env__flap .flap-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden}
 .env__flap .flap-face svg{position:absolute;inset:0;width:100%;height:100%;display:block}
-.env__flap .flap-face *{backface-visibility:hidden;-webkit-backface-visibility:hidden}
 .env__flap .flap-face--front{transform:translateZ(.5px)}
 .env__flap .flap-face--back{transform:rotateY(180deg) translateZ(.5px)}
-.env__seal{position:absolute;left:50%;top:100%;width:28%;aspect-ratio:1;transform:translate(-50%,-50%) translateZ(1px);filter:drop-shadow(0 2px 2px rgba(0,0,0,.35))}
+.env__seal{position:absolute;left:50%;top:100%;width:28%;aspect-ratio:1;transform:translate(-50%,-50%) translateZ(1px)}
 .env__seal svg{width:100%;height:100%;display:block;overflow:visible}
 .seal__half{transform-box:fill-box;transform-origin:50% 50%}
 .seal__crack{stroke-dasharray:1;stroke-dashoffset:1;opacity:0}
@@ -58,14 +56,13 @@
 
 /* the letter, out in the open */
 .letter-stage{position:absolute;inset:0;z-index:12;display:grid;place-items:center;pointer-events:none;padding:calc(var(--safe-top) + 56px) 14px calc(var(--safe-bottom) + 84px)}
-.letter{position:relative;width:var(--lw);perspective:2000px;pointer-events:none;opacity:0;visibility:hidden;transform-origin:50% 50%;will-change:transform;--ph:calc(var(--lw) * .46)}
+.letter{position:relative;width:var(--lw);perspective:2000px;pointer-events:none;opacity:0;visibility:hidden;transform-origin:50% 50%;--ph:calc(var(--lw) * .46)}
 .letter.is-in{opacity:1;visibility:visible;pointer-events:auto}
 .letter.is-leaving{transition:transform .7s var(--ease-soft),opacity .6s ease,visibility 0s .7s;transform:translateY(14px) scale(.96);opacity:0;visibility:hidden}
 .letter__sheet{position:relative;height:calc(var(--ph) * 3);transform-style:preserve-3d}
-.letter__p{position:absolute;left:0;right:0;height:var(--ph);transform-style:preserve-3d;will-change:transform}
+.letter__p{position:absolute;left:0;right:0;height:var(--ph);transform-style:preserve-3d}
 .letter__p .front{position:absolute;inset:0;overflow:hidden;backface-visibility:hidden;-webkit-backface-visibility:hidden;background:linear-gradient(200deg,#f4ecd8,#ecdfc5);
   padding:calc(var(--lw) * .04) calc(var(--lw) * .07);font-family:var(--hand);font-weight:500;font-size:calc(var(--lw) * .056);line-height:1.3;color:#2b2a36;white-space:nowrap}
-.letter__p .front *,.letter__p .front::before,.letter__p .back::before{backface-visibility:hidden;-webkit-backface-visibility:hidden}
 .letter__p .front::before{content:"";position:absolute;inset:0;background-image:var(--grain);opacity:.5;pointer-events:none}
 .letter__p p{margin:0 0 .2em;position:relative}
 .letter__p .back{position:absolute;inset:0;background:linear-gradient(200deg,#eadec5,#e1d3b7);transform:rotateY(180deg);backface-visibility:hidden;-webkit-backface-visibility:hidden}
@@ -79,7 +76,7 @@
 .letter__p--top .shade{background:linear-gradient(0deg,rgba(0,0,0,.3),transparent 70%)}
 .letter__p--bot .shade{background:linear-gradient(180deg,rgba(0,0,0,.3),transparent 70%)}
 .letter__p .shade{transition:none}
-.letter__sheet::after{content:"";position:absolute;left:3%;right:3%;bottom:-10px;height:22px;border-radius:50%;background:rgba(0,0,0,.45);filter:blur(10px);z-index:-1}
+.letter__sheet::after{content:"";position:absolute;left:-4%;right:-4%;bottom:-22px;height:40px;border-radius:50%;background:radial-gradient(ellipse at 50% 40%,rgba(0,0,0,.45) 20%,rgba(0,0,0,.2) 50%,transparent 72%);z-index:-1}
 .letter__sign{text-align:right;font-weight:600}
 .garden .env-cue{z-index:14}
 .garden.is-leaving .env-stage{opacity:0}

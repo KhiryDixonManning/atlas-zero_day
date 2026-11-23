@@ -11,3 +11,5 @@ folder with Node. `BASE` overrides the URL.
 - `spam.js` — twelve rapid taps at each stage, and back pressed mid-unfold, both recover.
 - `frames.js` — grabs intermediate frames into a contact sheet: `node frames.js <url> <w> <h> <out.png> <progress> "<ms>:click <sel>" ... --grab start,end,step [--crop x,y,w,h] [--rm]`.
 - `release.js` — release regression: `RUNS` full runs end to end at 390x664, the back-then-mailbox race, thirty rounds of rapid taps across the sequence, replay, and intro-text geometry at five phone viewports.
+- `wklayers.js` — estimates WebKit compositing layers and GPU backing store at iPhone density at each stage. Keep the peak well under 150 MB.
+- `leak.js` — three replays in one page, watching DOM nodes, canvases, and heap for accumulation.
