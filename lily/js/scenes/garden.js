@@ -107,10 +107,12 @@ export function createGarden(ctx) {
   const env = q('.env'), envBody = q('.env__body'), envFlap = q('.env__flap'), envLetter = q('.env__letter'), sealEl = q('.env__seal'), letter = q('.letter');
   const pTop = q('.letter__p--top'), pBot = q('.letter__p--bot');
   let state = 'closed';           // closed → opening → open → taking → front → flipping → back → breaking → letter
-  let timers = [], tweens = [];
-  const later = (fn, ms) => { const t = setTimeout(fn, ms); timers.push(t); return t; };
-  const run = (ms, ease, fn) => { const t = tween(ms, ease, fn); tweens.push(t); return t; };
-  const clearLater = () => { timers.forEach(clearTimeout); timers = []; tweens.forEach(t => t.cancel()); tweens = []; };
+  let timers = [], tweens = [], gen = 0;   // gen: every reset bumps it, so stale continuations know to stop
+  const later = (fn, ms) => { const g = gen; const t = setTimeout(() => { if (g === gen) fn(); }, ms); timers.push(t); return t; };
+  // a tween that always completes: if frames stop coming (hidden tab, a stalled compositor) it is finished by a timer
+  const run = (ms, ease, fn) => { const t = tween(ms, ease, fn); tweens.push(t); const guard = setTimeout(() => t.finish(), ms + 900); timers.push(guard); t.then(() => clearTimeout(guard)); return t; };
+  const live = () => { const g = gen; return () => g === gen; };
+  const clearLater = () => { gen++; timers.forEach(clearTimeout); timers = []; tweens.forEach(t => t.cancel()); tweens = []; };
   const setCue = (text) => { if (!text) { cue.classList.remove('is-in'); return; } cueText.textContent = text; cue.classList.add('is-in'); };
 
   // ---------- sizing ----------
@@ -180,20 +182,20 @@ export function createGarden(ctx) {
     const s = a.width / b.width, dx = (a.left + a.width / 2) - (b.left + b.width / 2), dy = (a.top + a.height / 2) - (b.top + b.height / 2);
     env.classList.add('is-in'); mbEnv.style.opacity = '0'; root.classList.add('is-dim');
     ctx.audio.sfx('paper');
-    const dur = RM ? 600 : 1500;
+    const dur = RM ? 600 : 1500, ok = live();
     run(dur, EASE.inOut, k => {
       const sc = s + (1 - s) * k, x = dx * (1 - k), y = dy * (1 - k) - 40 * sin(PI * k), rot = -8 * (1 - k);
       env.style.transform = `translate(${x}px, ${y}px) scale(${sc}) rotate(${rot}deg) rotateY(${-8 * (1 - k)}deg) rotateX(${6 * k}deg)`;
       env.style.setProperty('--near', k.toFixed(3));
-    }).then(() => { if (state !== 'taking') return; env.style.transform = ''; env.classList.add('is-held'); state = 'front'; setCue('turn it over'); env.tabIndex = 0; env.focus({ preventScroll: true }); });
+    }).then(() => { if (!ok() || state !== 'taking') return; env.style.transform = ''; env.classList.add('is-held'); state = 'front'; setCue('turn it over'); env.tabIndex = 0; });
   }
   function flipEnvelope() {
     if (state !== 'front') return;
     state = 'flipping'; clearLater(); setCue(''); ctx.audio.sfx('paper');
     env.setAttribute('aria-label', 'The back of the envelope, closed with a red wax seal. Tap the seal to break it.');
-    const dur = RM ? 600 : 1400;
+    const dur = RM ? 600 : 1400, ok = live();
     run(dur, EASE.inOut, k => { envBody.style.transform = `rotateY(${180 * k}deg) translateZ(${26 * sin(PI * k)}px)`; })
-      .then(() => { if (state !== 'flipping') return; envBody.style.transform = 'rotateY(180deg)'; env.classList.add('is-flipped'); state = 'back'; setCue('break the seal'); });
+      .then(() => { if (!ok() || state !== 'flipping') return; envBody.style.transform = 'rotateY(180deg)'; env.classList.add('is-flipped'); state = 'back'; setCue('break the seal'); });
   }
   function breakSeal() {
     if (state !== 'back') return;
@@ -209,6 +211,8 @@ export function createGarden(ctx) {
     // the letter slides up out of the pocket
     later(() => { ctx.audio.sfx('paper'); run(RM ? 500 : 1300, EASE.inOut, k => { envLetter.style.transform = `translateZ(1px) translateY(${-62 * k}%)`; }); }, T[2]);
     later(() => liftLetter(), T[3]);
+    // a deadline: if the animations above did not get her to the open letter, open it anyway
+    later(() => { if (state === 'breaking') { tweens.forEach(t => t.finish()); letter.classList.add('is-in'); letter.style.transform = ''; envLetter.style.opacity = '0'; env.classList.add('is-away'); env.style.setProperty('--sink', '1'); letterOpen(); } }, T[4] + 4500);
   }
   function liftLetter() {
     // the folded letter takes over from the sheet in the pocket at the same place and size, then comes forward
@@ -220,25 +224,30 @@ export function createGarden(ctx) {
     letter.style.transform = `translate(${dx}px, ${dy}px) scale(${s})`;
     letter.classList.add('is-in', 'is-folding'); envLetter.style.opacity = '0';
     env.classList.add('is-away');
-    const dur = RM ? 500 : 1300;
+    const dur = RM ? 500 : 1300, ok = live();
     run(dur, EASE.inOut, k => {
       letter.style.transform = `translate(${dx * (1 - k)}px, ${dy * (1 - k)}px) scale(${s + (1 - s) * k})`;
       env.style.transform = `translateY(${18 * k}%) scale(${1 - 0.06 * k})`; env.style.setProperty('--sink', k.toFixed(3));
-    }).then(() => { if (state !== 'breaking') return; letter.style.transform = ''; return unfold(); });
+    }).then(() => { if (!ok() || state !== 'breaking') return; letter.style.transform = ''; return unfold(ok); });
   }
-  async function unfold() {
+  async function unfold(ok) {
     const topFront = pTop.querySelector('.front'), botFront = pBot.querySelector('.front');
     const topShade = pTop.querySelector('.shade'), botShade = pBot.querySelector('.shade');
     ctx.audio.sfx('unfold');
     // the top panel lifts off the front of the sheet and lays flat above it
     await run(RM ? 600 : 1500, EASE.inOut, k => { const a = -180 * (1 - k); pTop.style.transform = `translateZ(2px) rotateX(${a}deg)`; topFront.style.visibility = a > -90 ? 'visible' : 'hidden'; topShade.style.opacity = String(sin(PI * k) * 0.9); });
-    if (state !== 'breaking') return;
+    if (!ok() || state !== 'breaking') return;
     ctx.audio.sfx('paper');
     // the bottom panel drops down from behind
     await run(RM ? 600 : 1400, EASE.inOut, k => { const a = -180 * (1 - k); pBot.style.transform = `translateZ(-1px) rotateX(${a}deg)`; botFront.style.visibility = a > -90 ? 'visible' : 'hidden'; botShade.style.opacity = String(sin(PI * k) * 0.9); });
-    if (state !== 'breaking') return;
+    if (!ok() || state !== 'breaking') return;
+    letterOpen();
+  }
+  function letterOpen() {
     letter.classList.remove('is-folding'); letter.classList.add('is-open');
-    state = 'letter'; setCue('turn the page'); letter.tabIndex = 0; letter.focus({ preventScroll: true }); ctx.markLetterRead();
+    pTop.style.transform = 'translateZ(2px) rotateX(0deg)'; pBot.style.transform = 'translateZ(-1px) rotateX(0deg)';
+    pTop.querySelector('.front').style.visibility = 'visible'; pBot.querySelector('.front').style.visibility = 'visible';
+    state = 'letter'; setCue('turn the page'); letter.tabIndex = 0; ctx.markLetterRead();
   }
   function putBackEnvelope() {
     // "back" from the envelope or the letter: everything returns to the mailbox
@@ -249,7 +258,8 @@ export function createGarden(ctx) {
     env.style.transform = ''; env.style.opacity = ''; env.style.removeProperty('--near'); env.style.removeProperty('--flap'); env.style.removeProperty('--sink');
     envBody.style.transform = ''; envFlap.style.transform = ''; envLetter.style.transform = ''; envLetter.style.opacity = '';
     mbEnv.style.opacity = ''; root.classList.remove('is-dim');
-    later(() => { state = 'open'; setCue('take the envelope'); }, 700);
+    state = 'open';
+    later(() => setCue('take the envelope'), 700);
   }
 
   mb.addEventListener('click', () => { if (state === 'closed') openMailbox(); else if (state === 'open') takeEnvelope(); });
@@ -265,7 +275,7 @@ export function createGarden(ctx) {
     };
     sp.addEventListener('click', nod); sp.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); nod(); } });
   });
-  env.addEventListener('click', () => { if (state === 'front') flipEnvelope(); else if (state === 'back') breakSeal(); });
+  env.addEventListener('click', () => { if (state === 'front') flipEnvelope(); else if (state === 'back') breakSeal(); else if (state === 'letter') letter.click(); });
   env.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); env.click(); } });
   letter.addEventListener('click', () => { if (state === 'letter') { ctx.audio.sfx('page'); ctx.go('journal', { page: 0 }); } });
   letter.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); letter.click(); } });
@@ -298,9 +308,10 @@ export function createGarden(ctx) {
     },
     async exit({ reveal }) {
       setCue('');
+      reveal();                                   // the journal is already drawn beneath before anything here fades
       root.classList.add('is-leaving');
-      if (state === 'letter') { letter.classList.add('is-leaving'); await wait(RM ? 200 : 480); }
-      reveal(); await wait(200);
+      if (state === 'letter') { letter.classList.add('is-leaving'); await wait(RM ? 200 : 420); }
+      await wait(120);
     },
     destroy() { stop(); clearLater(); window.removeEventListener('resize', onResize); document.removeEventListener('visibilitychange', onVis); },
   };

@@ -51,5 +51,6 @@ export function tween(ms, ease, fn) {
   };
   raf = requestAnimationFrame(step);
   p.cancel = () => { if (!done) { done = true; cancelAnimationFrame(raf); resolve(); } };
+  p.finish = () => { if (!done) { done = true; cancelAnimationFrame(raf); fn(ease(1), 1); resolve(); } };
   return p;
 }
